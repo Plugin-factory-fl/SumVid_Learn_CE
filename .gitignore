@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Chrome Extension
+*.crx
+*.pem
+*.zip
+
+# Testing
+coverage/
+.nyc_output/
+
+# Backend
+backend/node_modules/
+backend/.env
+backend/.env.local
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
