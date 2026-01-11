@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: sumvid-learn-backend
+    env: node
+    plan: starter
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sumvid-learn-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_ID
+        sync: false
+      - key: FRONTEND_URL
+        value: chrome-extension://
+      - key: ALLOWED_ORIGINS
+        value: chrome-extension://*,http://localhost:*
+
+databases:
+  - name: sumvid-learn-db
+    plan: starter
+    databaseName: sumvid_learn
+    user: sumvid_learn_user

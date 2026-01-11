@@ -1,0 +1,250 @@
+/**
+ * Login Menu Styles
+ * Adapted from PromptProfile for SumVid Learn
+ */
+
+.icon--account path {
+  fill: currentColor;
+}
+
+.account__login-view {
+  display: block;
+}
+
+.account__login-view[hidden] {
+  display: none !important;
+}
+
+.account__logged-in-view {
+  display: block;
+}
+
+.account__logged-in-view[hidden] {
+  display: none !important;
+}
+
+.account__body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.account__input {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 13px;
+  width: 100%;
+  background: #f0f2f7;
+  color: #000000;
+  box-shadow: 0 8px 20px rgba(5, 7, 13, 0.2);
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.account__input:focus {
+  outline: 2px solid #A855F7;
+  border-color: transparent;
+}
+
+.account__input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.account__input--password {
+  padding-right: 60px;
+}
+
+.account__password-toggle {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #A855F7;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 120ms ease;
+  z-index: 1;
+}
+
+.account__password-toggle:hover {
+  color: #9333ea;
+}
+
+.account__password-toggle:focus-visible {
+  outline: 2px solid #A855F7;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.account__error-message {
+  color: #dc2626;
+  font-size: 13px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 8px 0;
+}
+
+.account__error-message[hidden] {
+  display: none;
+}
+
+.account__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.account__footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.account__footer-buttons {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.account__create-link,
+.account__forgot-link {
+  background: none;
+  border: none;
+  color: #A855F7;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 120ms ease;
+}
+
+.account__create-link:hover,
+.account__forgot-link:hover {
+  color: #9333ea;
+}
+
+.account__create-link:focus-visible,
+.account__forgot-link:focus-visible {
+  outline: 2px solid #A855F7;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+#create-account-dialog {
+  z-index: 10001;
+}
+
+.account__logged-in-body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px 0;
+}
+
+.account__user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.account__logged-in-as {
+  margin: 0;
+  font-size: 14px;
+  color: #ffffff;
+  line-height: 1.5;
+}
+
+.account__logged-in-as span {
+  font-weight: 600;
+}
+
+.account__switch-link {
+  background: none;
+  border: none;
+  color: #A855F7;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 120ms ease;
+  text-align: left;
+  width: fit-content;
+}
+
+.account__switch-link:hover {
+  color: #9333ea;
+}
+
+.account__plan-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.account__plan-label {
+  margin: 0;
+  font-size: 14px;
+  color: #ffffff;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.account__plan-label span {
+  font-weight: 700;
+}
+
+.account__plan-description {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+}
+
+.btn--upgrade {
+  width: 100%;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #A855F7;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 120ms ease, transform 120ms ease;
+  margin-top: 8px;
+}
+
+.btn--upgrade:hover {
+  background: #9333ea;
+  transform: translateY(-1px);
+}
+
+.btn--upgrade:active {
+  transform: translateY(0);
+}
+
+.icon--crown {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  z-index: 1;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}

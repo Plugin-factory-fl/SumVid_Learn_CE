@@ -1,0 +1,74 @@
+/**
+ * Sticky Button Styles for SumVid Learn
+ */
+
+.sumvid-sticky-button {
+  position: fixed;
+  z-index: 2147483000;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+  pointer-events: auto;
+}
+
+.sumvid-sticky-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
+}
+
+.sumvid-sticky-button:active,
+.sumvid-sticky-button.sumvid-sticky-button--dragging {
+  cursor: grabbing;
+  opacity: 0.8;
+  transform: scale(0.95);
+}
+
+.sumvid-sticky-button__icon {
+  width: 43px;
+  height: 43px;
+  display: block;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+}
+
+.sumvid-sticky-toast {
+  position: fixed;
+  z-index: 2147482999;
+  background: rgba(12, 18, 32, 0.95);
+  color: #e9edff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity 200ms ease, transform 200ms ease;
+  transform: translateX(-50%) translateY(-4px);
+  white-space: nowrap;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  cursor: default;
+}
+
+.sumvid-sticky-toast:hover {
+  background: rgba(12, 18, 32, 0.98);
+}
+
+/* Ensure button is always visible and on top */
+.sumvid-sticky-button,
+.sumvid-sticky-toast {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}

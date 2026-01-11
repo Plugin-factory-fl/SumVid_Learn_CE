@@ -1,0 +1,62 @@
+{
+  "manifest_version": 3,
+  "name": "SumVid Learn - \"The Ultimate AI Tool for Self-Learners\"",
+  "version": "1.1.0",
+  "description": "10X your learning with AI-powered video summaries, an AI chat for questions, and infinite quizzes to solidify your knowledge.",
+  "author": "Your Name",
+  "homepage_url": "https://your-website.com",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "*://*.youtube.com/*",
+    "https://api.openai.com/*",
+    "https://*.onrender.com/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://api.openai.com"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "sidebar.html",
+        "sidebar.css",
+        "sidebar.js",
+        "icons/icon48.png",
+        "Source/StickyButton.js",
+        "Source/LoginMenu.js",
+        "Source/SettingsPanel.js",
+        "Source/usageTracker.js",
+        "styles/StickyButton.css",
+        "styles/LoginMenu.css",
+        "styles/SettingsPanel.css"
+      ],
+      "matches": ["*://*.youtube.com/*"]
+    }
+  ],
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "SumVid Learn - \"The Ultimate AI Tool for Self-Learners\""
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["content.js"]
+    }
+  ]
+}

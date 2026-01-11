@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SumVid - AI Video Summarizer</title>
+  <link rel="stylesheet" href="sidebar.css">
+  <link rel="stylesheet" href="styles/SettingsPanel.css">
+  <link rel="stylesheet" href="styles/LoginMenu.css">
+</head>
+<body>
+  <div class="container">
+    <div class="logo-container">
+      <div class="logo">
+        <img src="icons/icon48.png" alt="SumVid Logo" width="32" height="32">
+      </div>
+      <div class="title-group">
+        <h1>SumVid <span class="learn-gradient">Learn</span></h1>
+        <p class="tagline">10X your learning speed</p>
+      </div>
+      <div class="panel__actions">
+        <button class="btn btn--ghost" id="open-settings" aria-label="Settings" type="button">
+          <svg class="icon icon--gear" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M12 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Zm9 2.5a1 1 0 0 1-.76.97l-1.54.35a6.97 6.97 0 0 1-.54 1.3l.9 1.3a1 1 0 0 1-.12 1.27l-1.42 1.42a1 1 0 0 1-1.27.12l-1.3-.9c-.42.22-.86.4-1.31.54l-.35 1.54a1 1 0 0 1-.97.76h-2a1 1 0 0 1-.97-.76l-.35-1.54a6.97 6.97 0 0 1-1.31-.54l-1.3.9a1 1 0 0 1-1.27-.12L3.62 17.9a1 1 0 0 1-.12-1.27l.9-1.3a6.97 6.97 0 0 1-.54-1.3l-1.54-.35A1 1 0 0 1 2 12v-2a1 1 0 0 1 .76-.97l1.54-.35c.14-.45.32-.89.54-1.3l-.9-1.3a1 1 0 0 1 .12-1.27L5.42 3.4a1 1 0 0 1 1.27-.12l1.3.9c.42-.22.86-.4 1.31-.54l.35-1.54A1 1 0 0 1 10.62 2h2a1 1 0 0 1 .97.76l.35 1.54c.45.14.89.32 1.31.54l1.3-.9a1 1 0 0 1 1.27.12l1.42 1.42a1 1 0 0 1 .12 1.27l-.9 1.3c.22.42.4.86.54 1.31l1.54.35A1 1 0 0 1 21 10v2Z"
+            />
+          </svg>
+        </button>
+        <button class="btn btn--ghost" id="open-account" aria-label="Account" type="button" style="position: relative;">
+          <svg class="icon icon--account" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M12 12c2.761 0 5-2.462 5-5.5S14.761 1 12 1 7 3.462 7 6.5 9.239 12 12 12Zm0 2c-3.033 0-9 1.523-9 4.5V21a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2.5c0-2.977-5.967-4.5-9-4.5Z"
+            />
+          </svg>
+          <svg class="icon icon--crown" id="account-crown-icon" viewBox="0 0 24 24" aria-hidden="true" style="display: none; position: absolute; top: -2px; right: -2px; width: 16px; height: 16px; z-index: 1;">
+            <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2v-1h14v1z" fill="#FFD700"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <div class="content">
+      <!-- Status Cards Section -->
+      <section class="panel__section panel__section--status" id="status-section" style="display: none;">
+        <div class="status-card">
+          <div class="status-card__label">User</div>
+          <div class="status-card__value" id="user-status">Not Logged In</div>
+          <div class="status-card__plan-row">
+            <span class="status-card__label">Plan</span>
+            <button class="btn btn--ghost btn--pill btn--upgrade" id="status-upgrade-btn" type="button" style="display: none; opacity: 0;">
+              Get Pro
+            </button>
+          </div>
+          <div class="status-card__value" id="user-plan">Freemium</div>
+        </div>
+        <div class="status-card" id="enhancements-used-card">
+          <div class="status-card__label">Enhancements used</div>
+          <div class="status-card__value">
+            <span id="enhancements-count">0</span>/<span id="enhancements-limit">10</span>
+          </div>
+        </div>
+      </section>
+
+      <div id="loading" class="state">
+        <div class="spinner"></div>
+        <p>Checking for YouTube video...</p>
+      </div>
+      
+      <div id="no-video" class="state hidden">
+        <div class="icon-container">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="info-icon">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+        <p>No YouTube video detected.</p>
+        <p class="hint">Open a YouTube video and try again.</p>
+      </div>
+      
+      <div id="video-info" class="state hidden">
+        <h2 id="video-title">Title will appear here</h2>
+        <p id="channel-name" class="channel">Channel name</p>
+        
+        <div id="summary-container" class="summary-container hidden">
+          <div class="summary-header" id="summary-header">
+            <h3>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              Your SumVid Summary
+              <div class="status-indicator">
+                <div class="loading-spinner"></div>
+                <span class="completion-badge">Done</span>
+              </div>
+            </h3>
+            <div class="header-buttons">
+              <button id="summarize-button" class="btn btn--primary" title="Generate Summary">Summarize</button>
+              <button id="regenerate-summary-button" class="regenerate-button" title="Regenerate Summary" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 4 23 10 17 10"></polyline>
+                  <polyline points="1 20 1 14 7 14"></polyline>
+                  <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                </svg>
+              </button>
+              <div id="summary-context-bar" class="context-bar hidden">
+                <div class="context-bar-title">Add context for better results!</div>
+                <div class="context-bar-row">
+                  <input type="text" id="summary-context-input" class="context-input" placeholder="Any suggestions?" />
+                  <button id="summary-context-submit" class="context-submit">OK</button>
+                </div>
+              </div>
+              <button class="collapse-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div id="summary-content" class="summary-content" style="display: none;">
+            <div class="summary-text">Generating summary...</div>
+            <div class="summary-info-center hidden">
+              <div class="info-stats">
+                <div class="info-stat">
+                  <span class="info-label">Video Length:</span>
+                  <span id="video-duration" class="info-value">--:--</span>
+                </div>
+                <div class="info-stat">
+                  <span class="info-label">Estimated Reading Time:</span>
+                  <span id="estimated-reading-time" class="info-value">-- min</span>
+                </div>
+              </div>
+              <div id="learning-multiplier" class="learning-multiplier-container hidden">
+                <div id="multiplier-main-text"></div>
+                <p id="multiplier-subtitle"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="questions-container" class="questions-container">
+          <div class="questions-header" id="questions-header">
+            <h3>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              Ask Questions
+            </h3>
+            <button class="collapse-button">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          </div>
+          <div id="questions-content" class="questions-content collapsed">
+            <div class="chat-container">
+              <div id="chat-messages" class="chat-messages"></div>
+              <div class="chat-input-container">
+                <input type="text" id="question-input" class="question-input" placeholder="Ask a question about the video...">
+                <button id="send-question" class="send-question">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="quiz-container" class="quiz-container">
+          <div class="quiz-header" id="quiz-header">
+            <h3>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              Test Your Knowledge
+              <div class="status-indicator">
+                <div class="loading-spinner"></div>
+                <span class="completion-badge">Done</span>
+              </div>
+            </h3>
+            <div class="header-buttons">
+              <button id="make-test-button" class="btn btn--primary" title="Generate Quiz">Make Test</button>
+              <button id="regenerate-quiz-button" class="regenerate-button" title="Regenerate Quiz" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 4 23 10 17 10"></polyline>
+                  <polyline points="1 20 1 14 7 14"></polyline>
+                  <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                </svg>
+              </button>
+              <div id="quiz-context-bar" class="context-bar hidden">
+                <div class="context-bar-title">Add context for better results!</div>
+                <div class="context-bar-row">
+                  <input type="text" id="quiz-context-input" class="context-input" placeholder="Any suggestions?" />
+                  <button id="quiz-context-submit" class="context-submit">OK</button>
+                </div>
+              </div>
+              <button class="collapse-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div id="quiz-content" class="quiz-content collapsed" style="display: none;">Generating questions...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Dialog -->
+  <dialog id="settings-dialog" class="modal modal--dark">
+    <form method="dialog" class="modal__content">
+      <header class="modal__header">
+        <h2>Settings</h2>
+        <button class="btn btn--ghost modal__close" value="cancel" aria-label="Close settings">
+          <svg class="icon icon--close" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7.05 6.34a1 1 0 0 1 1.41 0L12 9.88l3.54-3.54a1 1 0 1 1 1.41 1.41L13.41 11.3l3.54 3.54a1 1 0 0 1-1.41 1.41L12 12.7l-3.54 3.54a1 1 0 0 1-1.41-1.41l3.54-3.54-3.54-3.54a1 1 0 0 1 0-1.41Z" />
+          </svg>
+        </button>
+      </header>
+      <div class="modal__body settings-form">
+        <label class="form-field form-field--toggle">
+          <div class="form-field__label-group">
+            <span class="form-field__label">Dark Mode</span>
+            <span class="form-field__description">Toggle dark theme for better viewing in low light</span>
+          </div>
+          <input type="checkbox" id="setting-dark-mode" />
+          <span class="toggle-switch"></span>
+        </label>
+        <label class="form-field form-field--toggle">
+          <div class="form-field__label-group">
+            <span class="form-field__label">Auto-collapse Sections</span>
+            <span class="form-field__description">Automatically collapse sections after generation</span>
+          </div>
+          <input type="checkbox" id="setting-auto-collapse" />
+          <span class="toggle-switch"></span>
+        </label>
+      </div>
+      <footer class="modal__footer">
+        <button class="btn btn--ghost" value="cancel">Cancel</button>
+        <button class="btn btn--primary" value="confirm">Save</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Account/Login Dialog -->
+  <dialog id="account-dialog" class="modal modal--dark">
+    <form class="modal__content account__login-view" id="account-form">
+      <header class="modal__header">
+        <h2>Account</h2>
+        <button class="btn btn--ghost modal__close account__cancel" value="cancel" aria-label="Close account dialog">
+          <svg class="icon icon--close" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7.05 6.34a1 1 0 0 1 1.41 0L12 9.88l3.54-3.54a1 1 0 1 1 1.41 1.41L13.41 11.3l3.54 3.54a1 1 0 0 1-1.41 1.41L12 12.7l-3.54 3.54a1 1 0 0 1-1.41-1.41l3.54-3.54-3.54-3.54a1 1 0 0 1 0-1.41Z" />
+          </svg>
+        </button>
+      </header>
+      <div class="modal__body account__body">
+        <div>
+          <label for="account-email" class="form-field__label">Email</label>
+          <input type="email" id="account-email" name="email" class="account__input" placeholder="your@email.com" required />
+        </div>
+        <div>
+          <label for="account-password" class="form-field__label">Password</label>
+          <div class="account__input-wrapper">
+            <input type="password" id="account-password" name="password" class="account__input account__input--password" placeholder="Enter your password" required />
+            <button type="button" class="account__password-toggle" data-target="account-password">Show</button>
+          </div>
+        </div>
+        <div class="account__error-message" id="login-error-message" hidden></div>
+        <div class="account__footer">
+          <div class="account__footer-links">
+            <button type="button" class="account__create-link" id="open-create-account">Create Account</button>
+            <button type="button" class="account__forgot-link" id="forgot-password">Forgot Password?</button>
+          </div>
+          <div class="account__footer-buttons">
+            <button type="button" class="account__cancel btn btn--ghost">Cancel</button>
+            <button type="button" class="account__submit btn btn--primary" value="login">Log In</button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="modal__content account__logged-in-view" id="account-logged-in-view" hidden>
+      <header class="modal__header">
+        <h2>Account</h2>
+        <button class="btn btn--ghost modal__close" value="cancel" aria-label="Close account dialog">
+          <svg class="icon icon--close" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7.05 6.34a1 1 0 0 1 1.41 0L12 9.88l3.54-3.54a1 1 0 1 1 1.41 1.41L13.41 11.3l3.54 3.54a1 1 0 0 1-1.41 1.41L12 12.7l-3.54 3.54a1 1 0 0 1-1.41-1.41l3.54-3.54-3.54-3.54a1 1 0 0 1 0-1.41Z" />
+          </svg>
+        </button>
+      </header>
+      <div class="modal__body account__logged-in-body">
+        <div class="account__user-info">
+          <p class="account__logged-in-as">Logged in as <span id="account-user-name">User</span></p>
+          <button type="button" class="account__switch-link" id="switch-account">Switch accounts?</button>
+        </div>
+        <div class="account__plan-info">
+          <p class="account__plan-label">Current Plan: <span id="account-plan-name">Freemium</span></p>
+          <p class="account__plan-description">Upgrade to Pro for unlimited enhancements and premium features.</p>
+          <button type="button" class="btn btn--upgrade" id="upgrade-button">Upgrade to Pro</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Create Account Dialog -->
+  <dialog id="create-account-dialog" class="modal modal--dark">
+    <form class="modal__content" id="create-account-form">
+      <header class="modal__header">
+        <h2>Create Account</h2>
+        <button class="btn btn--ghost modal__close create-account__cancel" value="cancel" aria-label="Close create account dialog">
+          <svg class="icon icon--close" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7.05 6.34a1 1 0 0 1 1.41 0L12 9.88l3.54-3.54a1 1 0 1 1 1.41 1.41L13.41 11.3l3.54 3.54a1 1 0 0 1-1.41 1.41L12 12.7l-3.54 3.54a1 1 0 0 1-1.41-1.41l3.54-3.54-3.54-3.54a1 1 0 0 1 0-1.41Z" />
+          </svg>
+        </button>
+      </header>
+      <div class="modal__body account__body">
+        <div>
+          <label for="create-account-name" class="form-field__label">Name (Optional)</label>
+          <input type="text" id="create-account-name" name="name" class="account__input" placeholder="Your name" />
+        </div>
+        <div>
+          <label for="create-account-email" class="form-field__label">Email</label>
+          <input type="email" id="create-account-email" name="email" class="account__input" placeholder="your@email.com" required />
+        </div>
+        <div>
+          <label for="create-account-password" class="form-field__label">Password</label>
+          <div class="account__input-wrapper">
+            <input type="password" id="create-account-password" name="password" class="account__input account__input--password" placeholder="At least 8 characters" required />
+            <button type="button" class="account__password-toggle" data-target="create-account-password">Show</button>
+          </div>
+        </div>
+        <div>
+          <label for="create-account-confirm-password" class="form-field__label">Confirm Password</label>
+          <div class="account__input-wrapper">
+            <input type="password" id="create-account-confirm-password" name="confirmPassword" class="account__input account__input--password" placeholder="Confirm your password" required />
+            <button type="button" class="account__password-toggle" data-target="create-account-confirm-password">Show</button>
+          </div>
+        </div>
+        <div class="account__error-message" id="create-account-error-message" hidden></div>
+        <div class="account__footer">
+          <div class="account__footer-links">
+            <button type="button" class="account__forgot-link" id="create-account-forgot-password">Forgot Password?</button>
+          </div>
+          <div class="account__footer-buttons">
+            <button type="button" class="create-account__cancel btn btn--ghost">Cancel</button>
+            <button type="submit" class="btn btn--primary">Create Account</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Forgot Password Email Dialog -->
+  <dialog id="forgot-password-email-dialog" class="modal modal--dark">
+    <form class="modal__content" id="forgot-password-email-form">
+      <header class="modal__header">
+        <h2>Reset Password</h2>
+        <button class="btn btn--ghost modal__close forgot-password-email__cancel" value="cancel" aria-label="Close dialog">
+          <svg class="icon icon--close" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7.05 6.34a1 1 0 0 1 1.41 0L12 9.88l3.54-3.54a1 1 0 1 1 1.41 1.41L13.41 11.3l3.54 3.54a1 1 0 0 1-1.41 1.41L12 12.7l-3.54 3.54a1 1 0 0 1-1.41-1.41l3.54-3.54-3.54-3.54a1 1 0 0 1 0-1.41Z" />
+          </svg>
+        </button>
+      </header>
+      <div class="modal__body account__body">
+        <p>Enter your email address and we'll send you instructions to reset your password.</p>
+        <div>
+          <label for="forgot-password-email" class="form-field__label">Email</label>
+          <input type="email" id="forgot-password-email" name="email" class="account__input" placeholder="your@email.com" required />
+        </div>
+        <div class="account__error-message" id="forgot-password-email-error-message" hidden></div>
+        <div class="account__footer">
+          <div></div>
+          <div class="account__footer-buttons">
+            <button type="button" class="forgot-password-email__cancel btn btn--ghost">Cancel</button>
+            <button type="button" class="forgot-password-email__submit btn btn--primary">Send Reset Link</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Forgot Password Reset Dialog -->
+  <dialog id="forgot-password-reset-dialog" class="modal modal--dark">
+    <form class="modal__content" id="forgot-password-reset-form">
+      <header class="modal__header">
+        <h2>Set New Password</h2>
+        <button class="btn btn--ghost modal__close forgot-password-reset__cancel" value="cancel" aria-label="Close dialog">
+          <svg class="icon icon--close" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7.05 6.34a1 1 0 0 1 1.41 0L12 9.88l3.54-3.54a1 1 0 1 1 1.41 1.41L13.41 11.3l3.54 3.54a1 1 0 0 1-1.41 1.41L12 12.7l-3.54 3.54a1 1 0 0 1-1.41-1.41l3.54-3.54-3.54-3.54a1 1 0 0 1 0-1.41Z" />
+          </svg>
+        </button>
+      </header>
+      <div class="modal__body account__body">
+        <div>
+          <label for="forgot-password-new-password" class="form-field__label">New Password</label>
+          <div class="account__input-wrapper">
+            <input type="password" id="forgot-password-new-password" name="newPassword" class="account__input account__input--password" placeholder="At least 8 characters" required />
+            <button type="button" class="account__password-toggle" data-target="forgot-password-new-password">Show</button>
+          </div>
+        </div>
+        <div>
+          <label for="forgot-password-confirm-password" class="form-field__label">Confirm New Password</label>
+          <div class="account__input-wrapper">
+            <input type="password" id="forgot-password-confirm-password" name="confirmPassword" class="account__input account__input--password" placeholder="Confirm your password" required />
+            <button type="button" class="account__password-toggle" data-target="forgot-password-confirm-password">Show</button>
+          </div>
+        </div>
+        <div class="account__error-message" id="forgot-password-reset-error-message" hidden></div>
+        <div class="account__footer">
+          <div></div>
+          <div class="account__footer-buttons">
+            <button type="button" class="forgot-password-reset__cancel btn btn--ghost">Cancel</button>
+            <button type="button" class="forgot-password-reset__submit btn btn--primary">Reset Password</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="Source/usageTracker.js"></script>
+  <script src="Source/SettingsPanel.js"></script>
+  <script src="Source/LoginMenu.js"></script>
+  <script src="sidebar.js"></script>
+</body>
+</html>
