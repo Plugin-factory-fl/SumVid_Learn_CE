@@ -199,6 +199,63 @@
               window.showCompletionBadge(this.summaryContainer);
             }
             
+            // Add "Save to notes" button for cached summary
+            if (summaryTextElement && window.SumVidNotesManager) {
+              // Remove existing save-to-notes button if present
+              const existingSaveButton = document.getElementById('save-summary-to-notes-button');
+              if (existingSaveButton) {
+                existingSaveButton.remove();
+              }
+              
+              // Create "Save to notes" button
+              const saveToNotesButton = document.createElement('button');
+              saveToNotesButton.id = 'save-summary-to-notes-button';
+              saveToNotesButton.className = 'btn btn--primary';
+              saveToNotesButton.textContent = 'Save to notes';
+              saveToNotesButton.style.cssText = 'margin-top: 16px; display: inline-block;';
+              
+              saveToNotesButton.addEventListener('click', async () => {
+                try {
+                  const summaryText = summaryTextElement.textContent || summaryTextElement.innerText;
+                  const contentTitle = currentVideoInfo?.title || 'Summary';
+                  
+                  if (!summaryText || summaryText === 'Generating summary...') {
+                    alert('No summary available to save.');
+                    return;
+                  }
+                  
+                  await window.SumVidNotesManager.createNote(
+                    contentTitle,
+                    summaryText,
+                    'Summaries'
+                  );
+                  
+                  // Show brief confirmation
+                  const originalText = saveToNotesButton.textContent;
+                  saveToNotesButton.textContent = 'Saved!';
+                  saveToNotesButton.disabled = true;
+                  
+                  setTimeout(() => {
+                    saveToNotesButton.textContent = originalText;
+                    saveToNotesButton.disabled = false;
+                  }, 2000);
+                  
+                  // Refresh notes list if notes tab is active
+                  if (window.tabManager && window.tabManager.getActiveTab() === 'notes' && window.notesUIController) {
+                    const notesFilter = document.getElementById('notes-filter');
+                    const folder = notesFilter ? notesFilter.value : 'all';
+                    await window.notesUIController.renderNotes(folder);
+                  }
+                } catch (error) {
+                  console.error('[Eureka AI] Error saving summary to notes:', error);
+                  alert('Failed to save summary to notes. Please try again.');
+                }
+              });
+              
+              // Insert button after summary text element
+              summaryTextElement.parentNode.insertBefore(saveToNotesButton, summaryTextElement.nextSibling);
+            }
+            
             // Ensure cached summary is visible and expanded
             if (this.summaryContent) {
               this.summaryContent.style.display = 'block';
@@ -210,7 +267,7 @@
             if (this.summaryHeader) {
               this.summaryHeader.querySelector('.collapse-button')?.classList.remove('collapsed');
             }
-            
+
             // Load cached chat
             if (window.chatManager && typeof window.chatManager.loadCachedChat === 'function') {
               await window.chatManager.loadCachedChat(videoId);
@@ -289,6 +346,63 @@
           const regenerateSummaryButton = document.getElementById('regenerate-summary-button');
           if (summarizeButton) summarizeButton.style.display = 'none';
           if (regenerateSummaryButton) regenerateSummaryButton.style.display = 'block';
+          
+          // Add "Save to notes" button after summary generation
+          if (summaryTextElement && window.SumVidNotesManager) {
+            // Remove existing save-to-notes button if present
+            const existingSaveButton = document.getElementById('save-summary-to-notes-button');
+            if (existingSaveButton) {
+              existingSaveButton.remove();
+            }
+            
+            // Create "Save to notes" button
+            const saveToNotesButton = document.createElement('button');
+            saveToNotesButton.id = 'save-summary-to-notes-button';
+            saveToNotesButton.className = 'btn btn--primary';
+            saveToNotesButton.textContent = 'Save to notes';
+            saveToNotesButton.style.cssText = 'margin-top: 16px; display: inline-block;';
+            
+            saveToNotesButton.addEventListener('click', async () => {
+              try {
+                const summaryText = summaryTextElement.textContent || summaryTextElement.innerText;
+                const contentTitle = currentVideoInfo?.title || 'Summary';
+                
+                if (!summaryText || summaryText === 'Generating summary...') {
+                  alert('No summary available to save.');
+                  return;
+                }
+                
+                await window.SumVidNotesManager.createNote(
+                  contentTitle,
+                  summaryText,
+                  'Summaries'
+                );
+                
+                // Show brief confirmation
+                const originalText = saveToNotesButton.textContent;
+                saveToNotesButton.textContent = 'Saved!';
+                saveToNotesButton.disabled = true;
+                
+                setTimeout(() => {
+                  saveToNotesButton.textContent = originalText;
+                  saveToNotesButton.disabled = false;
+                }, 2000);
+                
+                // Refresh notes list if notes tab is active
+                if (window.tabManager && window.tabManager.getActiveTab() === 'notes' && window.notesUIController) {
+                  const notesFilter = document.getElementById('notes-filter');
+                  const folder = notesFilter ? notesFilter.value : 'all';
+                  await window.notesUIController.renderNotes(folder);
+                }
+              } catch (error) {
+                console.error('[Eureka AI] Error saving summary to notes:', error);
+                alert('Failed to save summary to notes. Please try again.');
+              }
+            });
+            
+            // Insert button after summary text element
+            summaryTextElement.parentNode.insertBefore(saveToNotesButton, summaryTextElement.nextSibling);
+          }
           
           // Ensure summary content is visible and expanded after generation
           if (this.summaryContent) {

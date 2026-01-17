@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Eureka AI",
   "version": "1.0.0",
-  "description": "Chat Workflow Sidebar for Learners and Educators",
+  "description": "Chat Workflow Sidebar for Learners",
   "author": "Your Name",
   "homepage_url": "https://your-website.com",
   "permissions": [

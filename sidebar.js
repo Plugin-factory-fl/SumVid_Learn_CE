@@ -485,6 +485,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Info dialogs and auto-login (delegated to InfoDialogsManager)
   // InfoDialogsManager handles all info dialogs and auto-login functionality
   
+  // Initialize InfoDialogsManager
+  if (window.InfoDialogsManager) {
+    window.infoDialogsManager = new window.InfoDialogsManager();
+  }
+  
   // Initialize managers
   let chatManager, contentGenerator, tabManager, usageManager, fileManager, flashcardUIController, notesUIController, contentDisplayManager;
   
@@ -561,8 +566,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         uploadButton: document.getElementById('upload-file-button'),
         fileInput: document.getElementById('file-upload-input'),
         fileUploadStatus: document.getElementById('file-upload-status'),
-        screenshotButton: document.getElementById('screenshot-button'),
-        readButton: document.getElementById('read-button')
+        screenshotButton: document.getElementById('screenshot-button')
       });
       window.fileManager = fileManager; // Make globally accessible
     }

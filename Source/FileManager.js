@@ -14,7 +14,6 @@
       this.fileInput = options.fileInput;
       this.fileUploadStatus = options.fileUploadStatus;
       this.screenshotButton = options.screenshotButton;
-      this.readButton = options.readButton;
       
       this.init();
     }
@@ -38,13 +37,6 @@
       if (this.screenshotButton) {
         this.screenshotButton.addEventListener('click', () => {
           this.captureScreenshot();
-        });
-      }
-      
-      // Read button
-      if (this.readButton) {
-        this.readButton.addEventListener('click', () => {
-          this.readWebpage();
         });
       }
     }

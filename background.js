@@ -500,20 +500,25 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           message: message.message,
           chatHistory: message.chatHistory || []
         };
-        
+
+        // Add useVisionModel flag if images/files are present
+        if (message.useVisionModel) {
+          requestBody.useVisionModel = true;
+        }
+
         // Add context if provided (truncate to avoid token limits)
         if (message.context) {
           // Truncate context to 3000 chars (~750 tokens) to leave room for chat history
-          requestBody.context = message.context.length > 3000 
+          requestBody.context = message.context.length > 3000
             ? message.context.substring(0, 3000) + '\n[Note: Context truncated for length.]'
             : message.context;
         } else if (contentInfo) {
           // Auto-include content context for better responses (truncated)
           const contentType = contentInfo.type || 'webpage';
-          const contentText = contentType === 'video' 
+          const contentText = contentType === 'video'
             ? (contentInfo.transcript || '')
             : (contentInfo.text || '');
-          
+
           if (contentText) {
             // Truncate to 3000 chars to avoid token limits
             requestBody.context = contentText.substring(0, 3000);
@@ -522,7 +527,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
           }
         }
-        
+
         const response = await callBackendAPI('/api/chat', 'POST', requestBody);
         sendResponse({ success: true, reply: response.reply });
       } catch (error) {

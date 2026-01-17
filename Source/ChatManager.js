@@ -200,10 +200,24 @@
               detail: { action: 'quiz', text: suggestion }
             }));
           } else {
-            // Regular suggestion - just fill input
+            // Regular suggestion - fill input and auto-submit for "main points" and "key concepts"
+            const lowerSuggestion = suggestion.toLowerCase();
+            const shouldAutoSubmit = lowerSuggestion.includes('main points') || 
+                                   lowerSuggestion.includes('main ideas') ||
+                                   lowerSuggestion.includes('key concepts') ||
+                                   lowerSuggestion.includes('key points');
+            
             if (this.input) {
               this.input.value = suggestion;
               this.input.focus();
+              
+              // Auto-submit if it's "main points" or "key concepts"
+              if (shouldAutoSubmit) {
+                // Small delay to ensure input is set, then submit
+                setTimeout(() => {
+                  this.handleSubmit();
+                }, 100);
+              }
             }
           }
         });
@@ -438,11 +452,19 @@
           messageToSend = question || 'Please analyze this screenshot.';
         }
         
+        // Check if we need vision model (screenshot or uploaded file context)
+        const uploadedFileContext = await chrome.storage.local.get(['uploadedFileContext']);
+        const hasImageOrFile = screenshotToSend || 
+                              (uploadedFileContext.uploadedFileContext && 
+                               (uploadedFileContext.uploadedFileContext.imageData || 
+                                uploadedFileContext.uploadedFileContext.fileType?.startsWith('image/')));
+        
         const response = await chrome.runtime.sendMessage({
           action: 'sidechat',
           message: messageToSend,
           chatHistory: chatHistory,
-          context: combinedContext
+          context: combinedContext,
+          useVisionModel: !!hasImageOrFile // Request vision model if image/file is present
         });
 
         if (response?.error) {
