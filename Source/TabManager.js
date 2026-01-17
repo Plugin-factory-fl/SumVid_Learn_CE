@@ -49,6 +49,14 @@
         content.style.removeProperty('display');
       });
       
+      // CRITICAL: Also explicitly hide the summary-container when switching away from summarize tab
+      if (tabName !== 'summarize') {
+        const summaryContainer = document.getElementById('summary-container');
+        if (summaryContainer) {
+          summaryContainer.style.setProperty('display', 'none', 'important');
+        }
+      }
+      
       // CRITICAL: Ensure #video-info parent is visible (it might have .hidden class)
       const videoInfo = document.getElementById('video-info');
       if (videoInfo) {
@@ -88,6 +96,28 @@
         activeTabContent.classList.add('active');
         // Then remove any conflicting inline display styles AFTER class is added
         // Don't remove display entirely - let CSS handle it via .active class
+        
+        // CRITICAL: Show summary-container only if summarize tab is active
+        // Hide it explicitly when other tabs are active
+        const summaryContainer = document.getElementById('summary-container');
+        const summarizeTab = document.getElementById('tab-summarize');
+        if (tabName === 'summarize' && summaryContainer) {
+          // Show summary-container when summarize tab is active
+          summaryContainer.style.removeProperty('display');
+          summaryContainer.style.removeProperty('visibility');
+          summaryContainer.style.removeProperty('opacity');
+          summaryContainer.style.removeProperty('height');
+        } else if (summaryContainer) {
+          // Hide summary-container when any other tab is active
+          summaryContainer.style.setProperty('display', 'none', 'important');
+          summaryContainer.style.setProperty('visibility', 'hidden', 'important');
+          summaryContainer.style.setProperty('opacity', '0', 'important');
+        }
+        
+        // Also ensure summarize tab itself is hidden when not active
+        if (summarizeTab && !summarizeTab.classList.contains('active')) {
+          summarizeTab.style.setProperty('display', 'none', 'important');
+        }
         
         // Verify only one tab is active
         const activeTabs = this.tabContents.filter(tab => tab.classList.contains('active'));
@@ -257,30 +287,17 @@
       if (tabName === 'flashcards') {
         console.log('[TabManager] Rendering flashcards, controller exists:', !!window.flashcardUIController);
         
-        // DEBUG: Check if elements exist
-        const flashcardContainer = document.getElementById('flashcard-container');
-        const flashcardContent = document.getElementById('flashcard-content');
-        const flashcardEmpty = document.getElementById('flashcard-empty');
-        const computedContainer = flashcardContainer ? window.getComputedStyle(flashcardContainer) : null;
-        const computedContent = flashcardContent ? window.getComputedStyle(flashcardContent) : null;
-        const computedEmpty = flashcardEmpty ? window.getComputedStyle(flashcardEmpty) : null;
-        console.log('[TabManager] DEBUG - Flashcard container: display=' + (computedContainer?.display || 'null') + 
-          ', visibility=' + (computedContainer?.visibility || 'null') + 
-          ', height=' + (computedContainer?.height || 'null') + 
-          ', width=' + (computedContainer?.width || 'null') +
-          ', minHeight=' + (computedContainer?.minHeight || 'null') +
-          ', opacity=' + (computedContainer?.opacity || 'null') +
-          ', position=' + (computedContainer?.position || 'null'));
-        console.log('[TabManager] DEBUG - Flashcard content: display=' + (computedContent?.display || 'null') + 
-          ', visibility=' + (computedContent?.visibility || 'null') + 
-          ', height=' + (computedContent?.height || 'null') + 
-          ', width=' + (computedContent?.width || 'null') +
-          ', minHeight=' + (computedContent?.minHeight || 'null'));
-        console.log('[TabManager] DEBUG - Flashcard empty: display=' + (computedEmpty?.display || 'null') + 
-          ', visibility=' + (computedEmpty?.visibility || 'null') + 
-          ', height=' + (computedEmpty?.height || 'null') +
-          ', width=' + (computedEmpty?.width || 'null') +
-          ', innerHTML length=' + (flashcardEmpty?.innerHTML?.length || 0));
+        // Ensure button handlers are set up
+        const generateButton = document.getElementById('generate-flashcard-button');
+        if (generateButton && window.flashcardUIController && !generateButton.hasAttribute('data-handler-attached')) {
+          console.log('[TabManager] Setting up flashcard button handler');
+          generateButton.setAttribute('data-handler-attached', 'true');
+          generateButton.addEventListener('click', async () => {
+            if (window.flashcardUIController) {
+              await window.flashcardUIController.handleGenerateFlashcards();
+            }
+          });
+        }
         
         if (window.flashcardUIController) {
           window.flashcardUIController.renderFlashcards().catch(err => {
@@ -294,6 +311,27 @@
       if (tabName === 'quiz') {
         console.log('[TabManager] Rendering quiz, controller exists:', !!window.quizUIController);
         
+        // Ensure button handlers are set up
+        const makeTestButton = document.getElementById('make-test-button');
+        const regenerateQuizButton = document.getElementById('regenerate-quiz-button');
+        if (makeTestButton && window.quizUIController && !makeTestButton.hasAttribute('data-handler-attached')) {
+          console.log('[TabManager] Setting up quiz button handler');
+          makeTestButton.setAttribute('data-handler-attached', 'true');
+          makeTestButton.addEventListener('click', async () => {
+            if (window.quizUIController) {
+              await window.quizUIController.handleGenerateQuiz();
+            }
+          });
+        }
+        if (regenerateQuizButton && window.quizUIController && !regenerateQuizButton.hasAttribute('data-handler-attached')) {
+          regenerateQuizButton.setAttribute('data-handler-attached', 'true');
+          regenerateQuizButton.addEventListener('click', async () => {
+            if (window.quizUIController) {
+              await window.quizUIController.handleGenerateQuiz(true);
+            }
+          });
+        }
+        
         if (window.quizUIController) {
           window.quizUIController.renderQuiz().catch(err => {
             console.error('[TabManager] Error rendering quiz:', err);
@@ -306,28 +344,149 @@
       if (tabName === 'notes') {
         console.log('[TabManager] Rendering notes, controller exists:', !!window.notesUIController);
         
-        // DEBUG: Check if elements exist
-        const notesContainer = document.getElementById('notes-container');
-        const notesContent = document.getElementById('notes-content');
-        const notesList = document.getElementById('notes-list');
-        const noteEmpty = document.getElementById('note-empty');
-        const computedNotesContainer = notesContainer ? window.getComputedStyle(notesContainer) : null;
-        const computedNotesContent = notesContent ? window.getComputedStyle(notesContent) : null;
-        const computedNoteEmpty = noteEmpty ? window.getComputedStyle(noteEmpty) : null;
-        console.log('[TabManager] DEBUG - Notes container: display=' + (computedNotesContainer?.display || 'null') + 
-          ', visibility=' + (computedNotesContainer?.visibility || 'null') + 
-          ', height=' + (computedNotesContainer?.height || 'null') + 
-          ', minHeight=' + (computedNotesContainer?.minHeight || 'null'));
-        console.log('[TabManager] DEBUG - Notes content: display=' + (computedNotesContent?.display || 'null') + 
-          ', visibility=' + (computedNotesContent?.visibility || 'null') + 
-          ', height=' + (computedNotesContent?.height || 'null') + 
-          ', minHeight=' + (computedNotesContent?.minHeight || 'null'));
-        console.log('[TabManager] DEBUG - Notes empty: display=' + (computedNoteEmpty?.display || 'null') + 
-          ', visibility=' + (computedNoteEmpty?.visibility || 'null') + 
-          ', height=' + (computedNoteEmpty?.height || 'null'));
+        // Ensure button handlers are set up
+        const createNoteButton = document.getElementById('create-note-button');
+        if (createNoteButton && window.notesUIController && !createNoteButton.hasAttribute('data-handler-attached')) {
+          console.log('[TabManager] Setting up notes button handler');
+          createNoteButton.setAttribute('data-handler-attached', 'true');
+          createNoteButton.addEventListener('click', () => {
+            const noteEditorDialog = document.getElementById('note-editor-dialog');
+            const noteTitleInput = document.getElementById('note-title');
+            const noteFolderInput = document.getElementById('note-folder');
+            const noteContentInput = document.getElementById('note-content');
+            const noteEditorForm = document.getElementById('note-editor-form');
+            
+            if (noteEditorDialog) {
+              document.getElementById('note-editor-title').textContent = 'New Note';
+              if (noteTitleInput) noteTitleInput.value = '';
+              if (noteFolderInput) noteFolderInput.value = 'Uncategorized';
+              if (noteContentInput) noteContentInput.value = '';
+              if (noteEditorForm) {
+                delete noteEditorForm.dataset.noteId;
+              }
+              noteEditorDialog.showModal();
+            }
+          });
+        }
+        
+        // CRITICAL: Set up note editor form and close handlers directly here
+        const noteEditorDialog = document.getElementById('note-editor-dialog');
+        const noteEditorForm = document.getElementById('note-editor-form');
+        
+        if (noteEditorDialog && !noteEditorDialog.hasAttribute('data-handlers-attached')) {
+          console.log('[TabManager] Setting up note editor dialog handlers');
+          noteEditorDialog.setAttribute('data-handlers-attached', 'true');
+          
+          // Function to close dialog - removes required attributes temporarily
+          const closeDialog = () => {
+            const noteTitleInput = document.getElementById('note-title');
+            const noteContentInput = document.getElementById('note-content');
+            
+            // Temporarily remove required attributes to allow closing
+            if (noteTitleInput) {
+              noteTitleInput.removeAttribute('required');
+              noteTitleInput.removeAttribute('aria-required');
+            }
+            if (noteContentInput) {
+              noteContentInput.removeAttribute('required');
+              noteContentInput.removeAttribute('aria-required');
+            }
+            
+            // Force close the dialog
+            noteEditorDialog.close();
+            
+            // Restore required attributes after a brief delay
+            setTimeout(() => {
+              if (noteTitleInput) {
+                noteTitleInput.setAttribute('required', '');
+              }
+              if (noteContentInput) {
+                noteContentInput.setAttribute('required', '');
+              }
+            }, 100);
+          };
+          
+          // Set up form submission handler for notes
+          if (noteEditorForm && !noteEditorForm.hasAttribute('data-submit-handler-attached')) {
+            noteEditorForm.setAttribute('data-submit-handler-attached', 'true');
+            noteEditorForm.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              if (!window.SumVidNotesManager || !window.notesUIController) return;
+              
+              const noteTitleInput = document.getElementById('note-title');
+              const noteFolderInput = document.getElementById('note-folder');
+              const noteContentInput = document.getElementById('note-content');
+              const notesFilter = document.getElementById('notes-filter');
+              
+              const title = noteTitleInput?.value.trim();
+              const folder = noteFolderInput?.value.trim() || 'Uncategorized';
+              const content = noteContentInput?.value.trim();
+              
+              if (!title || !content) {
+                alert('Title and content are required');
+                return;
+              }
+              
+              const noteId = noteEditorForm.dataset.noteId;
+              if (noteId) {
+                await window.SumVidNotesManager.updateNote(noteId, { title, folder, content });
+              } else {
+                await window.SumVidNotesManager.createNote(title, content, folder);
+              }
+              
+              closeDialog();
+              
+              // Refresh notes list
+              const folderFilter = notesFilter ? notesFilter.value : 'all';
+              await window.notesUIController.renderNotes(folderFilter);
+            });
+          }
+          
+          // Handle cancel buttons using event delegation
+          noteEditorDialog.addEventListener('click', (e) => {
+            // Check if clicked element or its parent is a cancel button
+            const cancelButton = e.target.closest('.note-editor__cancel');
+            if (cancelButton) {
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation();
+              closeDialog();
+              return false;
+            }
+            
+            // Close if clicking on the dialog backdrop (not the form content)
+            if (e.target === noteEditorDialog) {
+              closeDialog();
+            }
+          }, true); // Use capture phase to ensure we catch it first
+          
+          // Handle ESC key
+          noteEditorDialog.addEventListener('cancel', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeDialog();
+          });
+          
+          noteEditorDialog.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+              e.preventDefault();
+              e.stopPropagation();
+              closeDialog();
+            }
+          });
+        }
+        
+        const notesFilter = document.getElementById('notes-filter');
+        if (notesFilter && window.notesUIController && !notesFilter.hasAttribute('data-handler-attached')) {
+          notesFilter.setAttribute('data-handler-attached', 'true');
+          notesFilter.addEventListener('change', () => {
+            if (window.notesUIController) {
+              window.notesUIController.renderNotes(notesFilter.value);
+            }
+          });
+        }
         
         if (window.notesUIController) {
-          const notesFilter = document.getElementById('notes-filter');
           const folder = notesFilter ? notesFilter.value : 'all';
           console.log('[TabManager] Rendering notes for folder:', folder);
           window.notesUIController.renderNotes(folder).catch(err => {

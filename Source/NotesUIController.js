@@ -47,38 +47,8 @@
         });
       }
       
-      if (noteEditorForm) {
-        noteEditorForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          if (!window.SumVidNotesManager) return;
-          
-          const title = noteTitleInput?.value.trim();
-          const folder = noteFolderInput?.value.trim() || 'Uncategorized';
-          const content = noteContentInput?.value.trim();
-          
-          if (!title || !content) {
-            alert('Title and content are required');
-            return;
-          }
-          
-          const noteId = noteEditorForm.dataset.noteId;
-          if (noteId) {
-            await window.SumVidNotesManager.updateNote(noteId, { title, folder, content });
-          } else {
-            await window.SumVidNotesManager.createNote(title, content, folder);
-          }
-          
-          if (noteEditorDialog) noteEditorDialog.close();
-          await this.renderNotes(notesFilter?.value || 'all');
-        });
-      }
-      
-      const cancelButtons = document.querySelectorAll('.note-editor__cancel');
-      cancelButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          if (noteEditorDialog) noteEditorDialog.close();
-        });
-      });
+      // Form submission and dialog close handlers are now handled by TabManager
+      // when the notes tab is activated - no need to attach them here
       
       await this.renderNotes();
     }

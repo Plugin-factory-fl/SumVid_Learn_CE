@@ -131,11 +131,15 @@
           throw new Error(response.error);
         }
 
-        if (response?.quiz) {
-          await this.displayQuiz(response.quiz, videoId);
+        // Background script returns { success: true, questions } where questions is the HTML string
+        // Handle both formats for compatibility: { quiz } or { questions }
+        const quizHTML = response?.quiz || response?.questions;
+        
+        if (quizHTML && typeof quizHTML === 'string') {
+          await this.displayQuiz(quizHTML, videoId);
           
           if (videoId && window.contentGenerator) {
-            await window.contentGenerator.saveGeneratedContent(videoId, 'quiz', response.quiz);
+            await window.contentGenerator.saveGeneratedContent(videoId, 'quiz', quizHTML);
           }
           
           if (regenerateQuizButton) regenerateQuizButton.style.display = 'block';
@@ -149,7 +153,8 @@
             await window.usageManager.updateStatusCards();
           }
         } else {
-          throw new Error('Invalid quiz response format');
+          console.error('[QuizUIController] Invalid quiz response format:', response);
+          throw new Error('Invalid quiz response format - expected quiz HTML string');
         }
       } catch (error) {
         console.error('[Eureka AI] Quiz generation error:', error);

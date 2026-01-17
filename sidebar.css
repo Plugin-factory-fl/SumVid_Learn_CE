@@ -2325,6 +2325,34 @@ dialog[open] > * {
   display: none !important;
 }
 
+/* CRITICAL: Hide summary-container when summarize tab is not active */
+/* Hide summary-container when any other tab is active - use specific selectors */
+#tab-summarize:not(.active) #summary-container {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Hide summary-container when other tabs are active - target it directly */
+#tab-flashcards.active ~ #tab-summarize #summary-container,
+#tab-quiz.active ~ #tab-summarize #summary-container,
+#tab-notes.active ~ #tab-summarize #summary-container,
+#tab-chat.active ~ #tab-summarize #summary-container {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Ensure summary-container is visible only when summarize tab is active */
+#tab-summarize.active #summary-container {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+}
+
 /* Ensure other tab contents are visible when active */
 #tab-summarize.active {
   display: flex !important;

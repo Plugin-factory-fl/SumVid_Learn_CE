@@ -206,7 +206,7 @@
       }
       
       this.summaryContainer?.classList.remove('hidden');
-      this.quizContainer?.classList.remove('hidden');
+      // Quiz, flashcards, and notes containers are handled by TabManager when tabs are activated
       
       const hasContent = contentInfo.transcript || contentInfo.text || contentInfo.needsServerExtraction;
       const summarizeButton = document.getElementById('summarize-button');
@@ -305,36 +305,8 @@
         }
       }
       
-      this.quizContainer?.classList.remove('hidden');
-      if (cachedQuiz) {
-        if (this.quizContent) {
-          // Don't set inline display - let CSS and TabManager handle it
-          this.quizContent.innerHTML = cachedQuiz;
-          // Don't add collapsed class - let TabManager handle visibility when tab is active
-        }
-        if (this.quizHeader) {
-          this.quizHeader.querySelector('.collapse-button')?.classList.add('collapsed');
-        }
-        // Quiz navigation and submit button are now handled by QuizUIController
-        if (window.showCompletionBadge) {
-          window.showCompletionBadge(this.quizContainer);
-        }
-        
-        const makeTestButton = document.getElementById('make-test-button');
-        const regenerateQuizButton = document.getElementById('regenerate-quiz-button');
-        if (makeTestButton) makeTestButton.style.display = 'none';
-        if (regenerateQuizButton) regenerateQuizButton.style.display = 'block';
-      } else {
-        // Don't set inline display: none - let CSS handle it
-        // Content will be shown when user switches to quiz tab
-        if (this.quizHeader) {
-          this.quizHeader.querySelector('.collapse-button')?.classList.add('collapsed');
-        }
-        const makeTestButton = document.getElementById('make-test-button');
-        const regenerateQuizButton = document.getElementById('regenerate-quiz-button');
-        if (makeTestButton) makeTestButton.style.display = 'block';
-        if (regenerateQuizButton) regenerateQuizButton.style.display = 'none';
-      }
+      // Quiz, flashcards, and notes are now handled entirely by their respective UIControllers
+      // when tabs are activated - no need to render them here
       
       if (window.usageManager) {
         await window.usageManager.updateStatusCards();

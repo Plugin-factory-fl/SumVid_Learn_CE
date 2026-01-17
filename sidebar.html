@@ -349,10 +349,10 @@
 
   <!-- Note Editor Dialog -->
   <dialog id="note-editor-dialog" class="note-editor-dialog">
-    <form class="modal__content" id="note-editor-form">
+    <form method="dialog" class="modal__content" id="note-editor-form">
       <header class="modal__header">
         <h2 id="note-editor-title">New Note</h2>
-        <button class="btn btn--ghost modal__close note-editor__cancel" value="cancel" aria-label="Close editor">
+        <button type="button" class="btn btn--ghost modal__close note-editor__cancel" aria-label="Close editor">
           <svg class="icon icon--close" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M7.05 6.34a1 1 0 0 1 1.41 0L12 9.88l3.54-3.54a1 1 0 1 1 1.41 1.41L13.41 11.3l3.54 3.54a1 1 0 0 1-1.41 1.41L12 12.7l-3.54 3.54a1 1 0 0 1-1.41-1.41l3.54-3.54-3.54-3.54a1 1 0 0 1 0-1.41Z" />
           </svg>
@@ -374,7 +374,7 @@
         </div>
       </div>
       <footer class="modal__footer">
-        <button type="button" class="note-editor__cancel btn btn--ghost" value="cancel">Cancel</button>
+        <button type="button" class="note-editor__cancel btn btn--ghost" formnovalidate>Cancel</button>
         <button type="submit" class="btn btn--primary">Save Note</button>
       </footer>
     </form>
