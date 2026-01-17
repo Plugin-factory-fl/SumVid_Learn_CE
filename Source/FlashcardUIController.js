@@ -65,8 +65,8 @@
       generateButton.textContent = 'Generating...';
       
       if (this.flashcardContent) {
-        this.flashcardContent.classList.remove('collapsed');
-        this.flashcardContent.style.display = 'block';
+        this.flashcardContent.classList.remove('collapsed', 'hidden');
+        // Don't set inline display - let CSS and TabManager handle visibility
         if (this.flashcardList) {
           this.flashcardList.innerHTML = '<p style="text-align: center; padding: 20px; color: var(--text-secondary);">Generating flashcards...</p>';
         }
@@ -100,8 +100,8 @@
           await window.SumVidFlashcardMaker.createFlashcardSet(setTitle, response.flashcards);
           await this.renderFlashcards();
           if (this.flashcardContent) {
-            this.flashcardContent.classList.remove('collapsed');
-            this.flashcardContent.style.display = 'block';
+            this.flashcardContent.classList.remove('collapsed', 'hidden');
+            // Don't set inline display - let CSS and TabManager handle visibility
           }
         }
         
@@ -123,6 +123,16 @@
     async renderFlashcards() {
       console.log('[FlashcardUIController] renderFlashcards called');
       
+      // CRITICAL: Ensure parent #video-info is visible before rendering
+      const videoInfo = document.getElementById('video-info');
+      if (videoInfo && videoInfo.classList.contains('hidden')) {
+        console.warn('[FlashcardUIController] video-info has hidden class, removing it');
+        videoInfo.classList.remove('hidden');
+        videoInfo.style.setProperty('display', 'flex', 'important');
+        videoInfo.style.setProperty('visibility', 'visible', 'important');
+        videoInfo.style.setProperty('opacity', '1', 'important');
+      }
+      
       // ALWAYS re-find elements to ensure they exist
       this.flashcardList = document.getElementById('flashcard-list');
       this.flashcardEmpty = document.getElementById('flashcard-empty');
@@ -140,10 +150,9 @@
         console.error('[FlashcardUIController] SumVidFlashcardMaker not available');
         if (this.flashcardEmpty) {
           this.flashcardEmpty.classList.remove('hidden');
-          this.flashcardEmpty.style.display = 'block';
         }
         if (this.flashcardList) {
-          this.flashcardList.style.display = 'none';
+          this.flashcardList.classList.add('hidden');
         }
         return;
       }
@@ -184,24 +193,34 @@
       
       console.log('[FlashcardUIController] Relevant sets:', relevantSets.length, 'Total sets:', sets.length);
       
-      // Force content visibility
+      // Force content visibility - remove inline styles and classes
       if (this.flashcardContent) {
-        this.flashcardContent.classList.remove('collapsed');
-        this.flashcardContent.style.display = 'block';
+        this.flashcardContent.style.removeProperty('display');
+        this.flashcardContent.style.removeProperty('visibility');
+        this.flashcardContent.classList.remove('collapsed', 'hidden');
       }
       if (this.flashcardContainer) {
-        this.flashcardContainer.style.display = 'block';
+        this.flashcardContainer.style.removeProperty('display');
+        this.flashcardContainer.classList.remove('collapsed', 'hidden');
       }
       
       if (relevantSets.length === 0) {
         console.log('[FlashcardUIController] No sets available, showing empty state');
+        
+        // Remove conflicting inline styles - CSS will handle visibility when tab is active
+        if (this.flashcardContent) {
+          this.flashcardContent.style.removeProperty('display');
+          this.flashcardContent.style.removeProperty('visibility');
+          this.flashcardContent.style.removeProperty('opacity');
+          this.flashcardContent.classList.remove('collapsed', 'hidden');
+        }
+        
         if (this.flashcardList) {
           this.flashcardList.innerHTML = '';
-          this.flashcardList.style.display = 'none';
+          this.flashcardList.classList.add('hidden');
         }
         if (this.flashcardEmpty) {
           this.flashcardEmpty.classList.remove('hidden');
-          this.flashcardEmpty.style.display = 'block';
         }
         this.currentFlashcardSet = null;
         this.currentFlashcardIndex = 0;
@@ -209,12 +228,9 @@
         console.log('[FlashcardUIController] Rendering set:', relevantSets[0].title);
         if (this.flashcardEmpty) {
           this.flashcardEmpty.classList.add('hidden');
-          this.flashcardEmpty.style.display = 'none';
         }
         if (this.flashcardList) {
           this.flashcardList.classList.remove('hidden');
-          this.flashcardList.style.display = 'block';
-          this.flashcardList.style.visibility = 'visible';
         }
         
         this.currentFlashcardSet = relevantSets[0];
@@ -239,10 +255,10 @@
         return;
       }
       
-      // Force visibility
+      // Force visibility - remove inline styles
       this.flashcardList.classList.remove('hidden');
-      this.flashcardList.style.display = 'block';
-      this.flashcardList.style.visibility = 'visible';
+      this.flashcardList.style.removeProperty('display');
+      this.flashcardList.style.removeProperty('visibility');
       
       const cards = this.currentFlashcardSet.cards || [];
       const cardsToShow = cards.slice(0, 10);
@@ -266,11 +282,11 @@
       
       console.log('[FlashcardUIController] Rendering card:', currentCard);
       
-      // Clear list first and force visibility
+      // Clear list first and force visibility - remove inline styles
       this.flashcardList.innerHTML = '';
-      this.flashcardList.style.display = 'block';
-      this.flashcardList.style.visibility = 'visible';
-      this.flashcardList.style.opacity = '1';
+      this.flashcardList.style.removeProperty('display');
+      this.flashcardList.style.removeProperty('visibility');
+      this.flashcardList.style.removeProperty('opacity');
       this.flashcardList.classList.remove('hidden');
       
       const cardElement = document.createElement('div');

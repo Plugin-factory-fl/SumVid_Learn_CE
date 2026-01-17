@@ -550,9 +550,21 @@ input:checked + .slider:before {
   padding: 16px;
   width: 100%;
   box-sizing: border-box;
-  min-height: 40px;
   transition: all 0.2s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex !important; /* Match summarize tab pattern */
+  flex-direction: column;
+  flex: 1 1 0; /* Grow, shrink, basis 0 */
+  min-height: 200px !important; /* Prevent collapsing - CRITICAL FIX */
+  /* Don't force height: auto !important - let inline styles work */
+}
+
+/* CRITICAL: Override base min-height for active tabs - must come after base rules */
+#tab-flashcards.active .flashcard-container,
+#tab-flashcards.active #flashcard-container {
+  min-height: 200px !important;
+  /* Don't force height: auto !important - let inline styles from JS work */
+  flex: 1 1 auto !important;
 }
 
 [data-theme="dark"] .summary-container {
@@ -578,9 +590,13 @@ input:checked + .slider:before {
   padding: 16px;
   width: 100%;
   box-sizing: border-box;
-  min-height: 40px;
   transition: all 0.2s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex !important; /* Match summarize tab pattern */
+  flex-direction: column;
+  flex: 1 1 0; /* Grow, shrink, basis 0 */
+  min-height: 0 !important; /* Allow flex shrinking */
+  height: 0; /* Flex trick: height 0 + flex 1 = fill available space */
 }
 
 .summary-container:hover,
@@ -600,9 +616,18 @@ input:checked + .slider:before {
   padding: 16px;
   width: 100%;
   box-sizing: border-box;
-  min-height: 40px;
   transition: all 0.2s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex !important; /* Match summarize tab pattern */
+  flex-direction: column;
+  flex: 1 1 0; /* Grow, shrink, basis 0 */
+  min-height: 0 !important; /* Allow flex shrinking */
+  height: 0; /* Flex trick: height 0 + flex 1 = fill available space */
+  display: flex !important; /* Match summarize tab pattern */
+  flex-direction: column;
+  flex: 1 1 0; /* Grow, shrink, basis 0 */
+  min-height: 0 !important; /* Allow flex shrinking */
+  height: 0; /* Flex trick: height 0 + flex 1 = fill available space */
 }
 
 .quiz-container:hover {
@@ -633,6 +658,7 @@ input:checked + .slider:before {
   cursor: pointer;
   min-height: 24px;
   background: transparent;
+  flex-shrink: 0; /* Don't shrink header - match summary-header pattern */
 }
 
 [data-theme="dark"] .summary-header,
@@ -878,19 +904,7 @@ input:checked + .slider:before {
   }
 }
 
-.quiz-content {
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--text-secondary);
-  padding: 8px;
-  background-color: var(--bg-secondary);
-  border-radius: 8px;
-  transition: all 0.3s ease-out;
-  overflow-y: auto;
-  width: 100%;
-  max-height: 350px;
-  opacity: 1;
-}
+/* Old quiz-content style removed - using new pattern below that matches summary-content */
 
 .summary-content h4 {
   font-size: 16px;
@@ -925,7 +939,26 @@ input:checked + .slider:before {
   border: none;
 }
 
-/* Override collapsed state when tab is active */
+/* CRITICAL: When tab is active, content should ALWAYS be visible even if collapsed class exists */
+/* This must override the .collapsed class rules above */
+#tab-flashcards.active .flashcard-content,
+#tab-flashcards.active .flashcard-content.collapsed,
+#tab-quiz.active .quiz-content,
+#tab-quiz.active .quiz-content.collapsed,
+#tab-notes.active .notes-content,
+#tab-notes.active .notes-content.collapsed {
+  max-height: none !important;
+  opacity: 1 !important;
+  padding: 16px !important;
+  margin-top: 12px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  border: 1px solid var(--border-color) !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* Override collapsed state when tab is active - match summarize pattern exactly */
 #tab-summarize.active .summary-content.collapsed,
 #tab-flashcards.active .flashcard-content.collapsed,
 #tab-quiz.active .quiz-content.collapsed,
@@ -933,9 +966,11 @@ input:checked + .slider:before {
   max-height: none !important;
   opacity: 1 !important;
   padding: 16px !important;
-  margin: 0 !important;
-  overflow: visible !important;
+  margin-top: 12px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
   display: block !important;
+  visibility: visible !important;
 }
 
 .quiz-button {
@@ -2101,10 +2136,132 @@ input:checked + .slider:before {
   display: flex !important;
   flex-direction: column;
   flex: 1;
-  min-height: 0;
+  min-height: 400px !important; /* CRITICAL: Prevent collapsing - must match specific tab rules */
+  /* height is set by JavaScript inline styles for flashcards/quiz/notes - don't override with auto */
   width: 100%;
   overflow-y: auto;
+  overflow-x: visible !important; /* Don't clip horizontally */
   padding: 16px;
+}
+
+/* CRITICAL: Ensure active tabs have a minimum height - must match summarize pattern */
+/* NOTE: height is set via JavaScript inline styles, not CSS, to avoid conflicts */
+#tab-flashcards.active,
+#tab-quiz.active,
+#tab-notes.active {
+  min-height: 400px !important; /* Ensure tab has enough height */
+  /* height is set by JavaScript inline styles - don't override here */
+  flex: 1 1 auto !important; /* Grow to fill available space */
+}
+
+/* FORCE visibility of all content when tabs are active - ULTIMATE FIX */
+#tab-flashcards.active #flashcard-container {
+  display: flex !important;
+  flex-direction: column !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-height: 200px !important;
+  height: auto !important; /* Allow container to grow based on content */
+  flex: 1 1 auto !important; /* Allow container to grow */
+}
+
+#tab-flashcards.active #flashcard-content,
+#tab-quiz.active #quiz-content,
+#tab-notes.active #notes-content {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-height: 300px !important; /* Increased from 100px */
+  height: 300px !important; /* Explicit height, not auto */
+  width: 100% !important; /* Fill container width */
+  max-height: none !important;
+  flex: 0 0 auto !important; /* Don't shrink - use explicit height */
+  padding: 16px !important; /* Ensure padding is applied */
+  position: relative !important;
+  overflow: visible !important;
+}
+
+#tab-flashcards.active #flashcard-empty,
+#tab-flashcards.active #flashcard-empty.hidden {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-height: 120px !important; /* Increased - ensure empty state is visible */
+  height: auto !important; /* Allow empty state to grow based on content */
+  width: 100% !important; /* Fill container width */
+  padding: 20px !important; /* Ensure padding is applied */
+  position: relative !important; /* Ensure proper positioning */
+  z-index: 1 !important; /* Ensure it's above other elements */
+}
+
+#tab-quiz.active #quiz-container {
+  display: flex !important;
+  flex-direction: column !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-height: 200px !important;
+  height: auto !important; /* Allow container to grow based on content */
+  flex: 1 1 auto !important; /* Allow container to grow */
+}
+
+#tab-quiz.active #quiz-content {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-height: 200px !important; /* Increased from 100px */
+  height: auto !important; /* Allow content to grow based on children */
+  width: 100% !important; /* Fill container width */
+  max-height: none !important;
+  flex: 1 1 auto !important; /* Grow to fill available space in flex container */
+  padding: 16px !important; /* Ensure padding is applied */
+}
+
+#tab-quiz.active #quiz-empty,
+#tab-quiz.active #quiz-empty.hidden {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-height: 120px !important; /* Increased - ensure empty state is visible */
+  height: auto !important; /* Allow empty state to grow based on content */
+  width: 100% !important; /* Fill container width */
+  padding: 20px !important; /* Ensure padding is applied */
+  position: relative !important; /* Ensure proper positioning */
+  z-index: 1 !important; /* Ensure it's above other elements */
+}
+
+#tab-notes.active #notes-container {
+  display: flex !important;
+  flex-direction: column !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-height: 200px !important;
+  height: auto !important; /* Allow container to grow based on content */
+  flex: 1 1 auto !important; /* Allow container to grow */
+}
+
+#tab-notes.active #notes-content {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-height: 200px !important; /* Increased from 100px */
+  height: auto !important; /* Allow content to grow based on children */
+  width: 100% !important; /* Fill container width */
+  max-height: none !important;
+  flex: 1 1 auto !important; /* Grow to fill available space in flex container */
+  padding: 16px !important; /* Ensure padding is applied */
+}
+
+#tab-notes.active #note-empty,
+#tab-notes.active #note-empty.hidden {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-height: 120px !important; /* Increased - ensure empty state is visible */
+  height: auto !important; /* Allow empty state to grow based on content */
+  width: 100% !important; /* Fill container width */
+  padding: 20px !important; /* Ensure padding is applied */
+  position: relative !important; /* Ensure proper positioning */
+  z-index: 1 !important; /* Ensure it's above other elements */
 }
 
 #tab-chat.active {
@@ -2160,7 +2317,11 @@ dialog[open] > * {
 }
 
 /* Hide chat section when other tabs are active */
-#tab-chat:not(.active) {
+#tab-chat:not(.active),
+#tab-summarize:not(.active),
+#tab-flashcards:not(.active),
+#tab-quiz:not(.active),
+#tab-notes:not(.active) {
   display: none !important;
 }
 
@@ -2170,7 +2331,7 @@ dialog[open] > * {
   flex-direction: column;
   overflow: hidden; /* Prevent outer scrolling - card handles it */
   padding: 16px;
-  min-height: 0; /* Allow flex shrinking */
+  min-height: 400px !important; /* CRITICAL: Match other tabs - prevent collapsing */
   flex: 1; /* Fill available space */
 }
 
@@ -2179,22 +2340,97 @@ dialog[open] > * {
 #tab-notes.active {
   display: flex !important;
   flex-direction: column;
-  overflow-y: auto;
-  padding: 16px;
+  overflow: hidden !important; /* Match summarize pattern */
+  padding: 16px !important;
+  min-height: 400px !important; /* CRITICAL: Ensure tab has minimum height to render */
+  /* height is set by JavaScript inline styles - don't override with auto */
+  flex: 1 !important; /* Fill available space - match summarize pattern EXACTLY */
+  position: relative !important;
 }
 
-/* Make sure content sections are visible when their tab is active */
-/* Force flashcard visibility when tab is active */
-#tab-flashcards.active #flashcard-container {
-  display: block !important;
+/* CRITICAL: Ensure containers are visible when their tabs are active */
+#tab-summarize.active #summary-container,
+#tab-flashcards.active #flashcard-container,
+#tab-quiz.active #quiz-container,
+#tab-notes.active #notes-container {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important; /* Allow growing and shrinking */
+  min-height: 200px !important; /* CRITICAL: Prevent collapsing - minimum size */
+  width: 100% !important; /* Fill tab-content width */
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* CRITICAL: Since we changed containers to use summary-container class, ensure they're visible */
+#tab-flashcards.active .summary-container,
+#tab-quiz.active .summary-container,
+#tab-notes.active .summary-container {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 200px !important;
+  width: 100% !important;
+  opacity: 1 !important;
   visibility: visible !important;
 }
 
+/* CRITICAL: Ensure summary-content is visible in these tabs */
+#tab-flashcards.active .summary-content,
+#tab-quiz.active .summary-content,
+#tab-notes.active .summary-content {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-height: 200px !important;
+  padding: 16px !important;
+}
+
+/* Base styles for flashcard-content - match summary-content pattern EXACTLY */
+.flashcard-content {
+  padding: 16px;
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  transition: max-height 0.3s ease-out;
+  overflow-y: auto !important; /* Force scrollbar */
+  overflow-x: hidden !important;
+  flex: 1 1 auto; /* Grow and shrink, but maintain auto basis */
+  min-height: 100px !important; /* Prevent collapsing - CRITICAL FIX */
+  max-height: none !important; /* Override inline styles - use flex instead */
+  height: auto !important; /* Allow content to grow based on children - don't force 0 */
+  position: relative; /* Ensure scrollbar positioning */
+  display: block; /* Always visible by default - match summarize pattern */
+}
+
+/* Ensure flashcard-container is visible when tab is active - match summarize pattern */
+#tab-flashcards.active #flashcard-container {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 200px !important; /* CRITICAL: Prevent collapsing */
+  /* Don't force height: auto !important - let inline styles from JS work */
+  max-height: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Ensure flashcard-content is visible when tab is active */
 #tab-flashcards.active #flashcard-content {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
   max-height: none !important;
+  padding: 16px !important;
+  margin-top: 12px !important;
+  overflow-y: auto !important;
+  min-height: 100px !important; /* Ensure content area has minimum height */
 }
 
 #tab-flashcards.active #flashcard-list {
@@ -2203,23 +2439,95 @@ dialog[open] > * {
   opacity: 1 !important;
 }
 
-#tab-flashcards.active #flashcard-empty:not(.hidden) {
+/* Ensure empty states are visible when tab is active */
+#tab-flashcards.active #flashcard-empty:not(.hidden),
+#tab-quiz.active #quiz-empty:not(.hidden),
+#tab-notes.active #note-empty:not(.hidden) {
   display: block !important;
   visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure empty state is visible even if parent has collapsed */
+#tab-flashcards.active #flashcard-content #flashcard-empty:not(.hidden),
+#tab-quiz.active #quiz-content #quiz-empty:not(.hidden),
+#tab-notes.active #notes-content #note-empty:not(.hidden) {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 #tab-quiz.active #quiz-container,
+#tab-notes.active #notes-container {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 200px !important; /* CRITICAL: Prevent collapsing */
+  /* Don't force height: auto !important - let inline styles from JS work */
+  max-height: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
 #tab-quiz.active #quiz-content,
-#tab-notes.active #notes-container,
 #tab-notes.active #notes-content {
   display: block !important;
   max-height: none !important;
   opacity: 1 !important;
   padding: 16px !important;
-  margin: 0 !important;
-  overflow: visible !important;
-  border: none !important;
+  margin-top: 12px !important;
+  overflow-y: auto !important;
   visibility: visible !important;
+}
+
+/* Base styles for quiz-content - match summary-content pattern EXACTLY */
+.quiz-content {
+  padding: 16px;
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  transition: max-height 0.3s ease-out;
+  overflow-y: auto !important; /* Force scrollbar */
+  overflow-x: hidden !important;
+  flex: 1 1 auto; /* Grow and shrink, but maintain auto basis */
+  min-height: 100px !important; /* Prevent collapsing - CRITICAL FIX */
+  max-height: none !important; /* Override inline styles - use flex instead */
+  height: auto !important; /* Allow height to grow */
+  position: relative; /* Ensure scrollbar positioning */
+  display: block; /* Always visible by default - match summarize pattern */
+}
+
+/* Base styles for notes-content - match summary-content pattern EXACTLY */
+.notes-content {
+  padding: 16px;
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  transition: max-height 0.3s ease-out;
+  overflow-y: auto !important; /* Force scrollbar */
+  overflow-x: hidden !important;
+  flex: 1 1 auto; /* Grow and shrink, but maintain auto basis */
+  min-height: 100px !important; /* Prevent collapsing - CRITICAL FIX */
+  max-height: none !important; /* Override inline styles - use flex instead */
+  height: auto !important; /* Allow height to grow */
+  position: relative; /* Ensure scrollbar positioning */
+  display: block; /* Always visible by default - match summarize pattern */
+}
+
+/* Ensure empty states are visible */
+#tab-quiz.active #quiz-empty:not(.hidden),
+#tab-notes.active #note-empty:not(.hidden) {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* Simplified: Consolidated visibility rules for active tabs */
@@ -2247,7 +2555,7 @@ dialog[open] > * {
   color: var(--text-secondary);
 }
 
-/* Remove collapsed class when tab is active */
+/* CRITICAL: Remove collapsed class and force visibility when tab is active - match summarize pattern */
 #tab-flashcards.active #flashcard-content.collapsed,
 #tab-flashcards.active #flashcard-container.collapsed,
 #tab-quiz.active #quiz-content.collapsed,
@@ -2257,10 +2565,25 @@ dialog[open] > * {
   max-height: none !important;
   opacity: 1 !important;
   padding: 16px !important;
-  margin: 0 !important;
-  overflow: visible !important;
-  border: none !important;
+  margin-top: 12px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  border: 1px solid var(--border-color) !important;
   visibility: visible !important;
+  display: block !important;
+}
+
+/* Also ensure content areas are visible when tab is active, even if not collapsed */
+#tab-flashcards.active #flashcard-content,
+#tab-quiz.active #quiz-content,
+#tab-notes.active #notes-content {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  max-height: none !important;
+  padding: 16px !important;
+  margin-top: 12px !important;
+  overflow-y: auto !important;
 }
 
 /* Chat Icon Buttons */
@@ -2476,5 +2799,21 @@ dialog[open] > * {
   min-height: 0;
   overflow: hidden;
   width: 100%;
+}
+
+/* CRITICAL: Override .hidden class on #video-info when it should be visible */
+/* This ensures that when .hidden is removed, #video-info immediately becomes visible */
+#video-info:not(.hidden) {
+  display: flex !important;
+}
+
+/* More specific override for video-info state element */
+#video-info.state:not(.hidden) {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  width: 100% !important;
 }
 

@@ -85,6 +85,17 @@
 
     async renderNotes(folder = 'all') {
       console.log('[NotesUIController] renderNotes called for folder:', folder);
+      
+      // CRITICAL: Ensure parent #video-info is visible before rendering
+      const videoInfo = document.getElementById('video-info');
+      if (videoInfo && videoInfo.classList.contains('hidden')) {
+        console.warn('[NotesUIController] video-info has hidden class, removing it');
+        videoInfo.classList.remove('hidden');
+        videoInfo.style.setProperty('display', 'flex', 'important');
+        videoInfo.style.setProperty('visibility', 'visible', 'important');
+        videoInfo.style.setProperty('opacity', '1', 'important');
+      }
+      
       console.log('[NotesUIController] SumVidNotesManager available:', !!window.SumVidNotesManager);
       console.log('[NotesUIController] notesList:', !!this.notesList, 'noteEmpty:', !!this.noteEmpty);
       
@@ -110,15 +121,37 @@
       if (notesToShow.length === 0) {
         console.log('[NotesUIController] No notes, showing empty state');
         this.notesList.innerHTML = '';
+        
+        // Remove conflicting inline styles - CSS will handle visibility when tab is active
+        if (this.notesContent) {
+          this.notesContent.style.removeProperty('display');
+          this.notesContent.style.removeProperty('visibility');
+          this.notesContent.style.removeProperty('opacity');
+          this.notesContent.classList.remove('collapsed', 'hidden');
+        }
+        
         if (this.noteEmpty) {
           this.noteEmpty.classList.remove('hidden');
-          this.noteEmpty.style.display = 'block';
+        }
+        if (this.notesList) {
+          this.notesList.classList.add('hidden');
         }
       } else {
         console.log('[NotesUIController] Rendering', notesToShow.length, 'notes');
+        
+        // Remove conflicting inline styles - CSS will handle visibility
+        if (this.notesContent) {
+          this.notesContent.style.removeProperty('display');
+          this.notesContent.style.removeProperty('visibility');
+          this.notesContent.style.removeProperty('opacity');
+          this.notesContent.classList.remove('collapsed', 'hidden');
+        }
+        
         if (this.noteEmpty) {
           this.noteEmpty.classList.add('hidden');
-          this.noteEmpty.style.display = 'none';
+        }
+        if (this.notesList) {
+          this.notesList.classList.remove('hidden');
         }
         
         this.notesList.innerHTML = notesToShow.map(note => {

@@ -270,19 +270,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Function to load cached quiz (delegated to ContentGenerator)
-  async function loadCachedQuiz(videoId, transcript, summary) {
-    if (contentGenerator) {
-      await contentGenerator.loadCachedQuiz(videoId, transcript, summary);
-    }
-  }
-
-  // Generate quiz questions (delegated to ContentGenerator after initialization)
-  async function generateQuiz(transcript, summary, context = '') {
-    if (contentGenerator) {
-      await contentGenerator.generateQuiz(transcript, summary, context, currentVideoInfo, userContext);
-    }
-  }
+  // Quiz generation moved to QuizUIController - no longer needed here
 
   // Handle question submission (delegated to ChatManager)
   async function handleQuestionSubmit() {
@@ -489,48 +477,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Export to window for ButtonHandlers and other modules
   window.summarizeText = summarizeText;
 
-  // Quiz functions (delegated to ContentGenerator)
-  function checkQuizAnswers() {
-    if (contentGenerator) {
-      contentGenerator.checkQuizAnswers();
-    }
-  }
-  
-  function showQuizResultsDialog(correctAnswers, totalQuestions) {
-    if (contentGenerator) {
-      contentGenerator.showQuizResultsDialog(correctAnswers, totalQuestions);
-    }
-  }
-
-  function addSubmitButton() {
-    if (contentGenerator) {
-      contentGenerator.addSubmitButton();
-    }
-  }
-
-  function initializeQuizNavigation() {
-    if (contentGenerator) {
-      contentGenerator.initializeQuizNavigation();
-    }
-  }
-
-  function navigateQuestions(direction) {
-    if (contentGenerator) {
-      contentGenerator.navigateQuestions(direction);
-    }
-  }
-
-  function updateQuestionCounter() {
-    if (contentGenerator) {
-      contentGenerator.updateQuestionCounter();
-    }
-  }
-
-  function updateNavigationButtons() {
-    if (contentGenerator) {
-      contentGenerator.updateNavigationButtons();
-    }
-  }
+  // Quiz functions moved to QuizUIController - no longer needed here
   
   // Content display and initialization (delegated to ContentDisplayManager)
   // ContentDisplayManager handles all content info display and initialization
@@ -554,15 +501,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       window.chatManager = chatManager; // Make globally accessible
     }
     
-    // Initialize ContentGenerator
+    // Initialize ContentGenerator (summary only - quiz moved to QuizUIController)
     if (window.ContentGenerator) {
       contentGenerator = new window.ContentGenerator({
         summaryContainer: summaryContainer,
         summaryContent: summaryContent,
-        summaryHeader: summaryHeader,
-        quizContainer: quizContainer,
-        quizContent: quizContent,
-        quizHeader: quizHeader
+        summaryHeader: summaryHeader
       });
       window.contentGenerator = contentGenerator; // Make globally accessible
     }
@@ -597,10 +541,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else if (action === 'quiz') {
           tabManager.switchTab('quiz');
           await new Promise(resolve => setTimeout(resolve, 100));
-          const quizButton = document.getElementById('make-test-button');
-          if (quizButton && !quizButton.disabled) {
-            quizButton.click();
-          }
+          // Quiz generation is now handled by QuizUIController when button is clicked
+          // Tab switch will trigger renderQuiz() which shows empty state or cached quiz
         }
       });
     }
@@ -643,8 +585,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         contentDisplayManager: contentDisplayManager,
         summaryContainer: summaryContainer,
         summaryContent: summaryContent,
-        quizContainer: quizContainer,
-        quizContent: quizContent,
+        // Quiz handling moved to QuizUIController
         chatMessages: chatMessages
       });
       window.buttonHandlers = buttonHandlers; // Make globally accessible
@@ -689,6 +630,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         content: !!notesUIController.notesContent,
         list: !!notesUIController.notesList,
         empty: !!notesUIController.noteEmpty
+      });
+    }
+    
+    // Initialize QuizUIController
+    if (window.QuizUIController) {
+      const quizUIController = new window.QuizUIController({
+        quizContainer: quizContainer,
+        quizContent: quizContent,
+        quizHeader: quizHeader,
+        quizQuestionsContainer: document.getElementById('quiz-questions-container'),
+        quizEmpty: document.getElementById('quiz-empty')
+      });
+      window.quizUIController = quizUIController; // Make globally accessible
+      console.log('[sidebar.js] QuizUIController initialized:', {
+        container: !!quizContainer,
+        content: !!quizContent,
+        header: !!quizHeader,
+        questionsContainer: !!document.getElementById('quiz-questions-container'),
+        empty: !!document.getElementById('quiz-empty')
       });
     }
     
@@ -755,6 +715,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.warn('[Eureka AI] SumVidFlashcardMaker module not loaded');
     }
     
+    // Initialize Quiz UI
+    initializeQuizUI();
+    
     // Initialize managers after other modules are loaded
     initializeManagers();
     
@@ -774,6 +737,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function initializeNotesUI() {
     if (notesUIController) {
       await notesUIController.initializeNotesUI();
+    }
+  }
+  
+  // Quiz UI initialization
+  // Quiz UI (delegated to QuizUIController)
+  async function initializeQuizUI() {
+    if (window.quizUIController) {
+      await window.quizUIController.initializeQuizUI();
     }
   }
   

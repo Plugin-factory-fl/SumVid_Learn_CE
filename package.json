@@ -1,8 +1,5 @@
 {
   "name": "sumvid-extension",
   "private": true,
-  "version": "1.0.0",
-  "scripts": {
-    "build": "./build.sh"
-  }
+  "version": "1.0.0"
 }

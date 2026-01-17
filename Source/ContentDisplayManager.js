@@ -30,11 +30,25 @@
     showState(stateElement) {
       if (!stateElement) return;
 
-      if (this.loadingState) this.loadingState.classList.add('hidden');
-      if (this.noVideoState) this.noVideoState.classList.add('hidden');
-      if (this.videoInfoState) this.videoInfoState.classList.add('hidden');
+      // Don't hide the element we're about to show
+      if (this.loadingState && this.loadingState !== stateElement) {
+        this.loadingState.classList.add('hidden');
+      }
+      if (this.noVideoState && this.noVideoState !== stateElement) {
+        this.noVideoState.classList.add('hidden');
+      }
+      if (this.videoInfoState && this.videoInfoState !== stateElement) {
+        this.videoInfoState.classList.add('hidden');
+      }
       
       stateElement.classList.remove('hidden');
+      
+      // CRITICAL: If showing video-info, ensure it's visible
+      if (stateElement.id === 'video-info') {
+        stateElement.style.setProperty('display', 'flex', 'important');
+        stateElement.style.setProperty('visibility', 'visible', 'important');
+        stateElement.style.setProperty('opacity', '1', 'important');
+      }
     }
 
     async requestContentInfo() {
@@ -203,8 +217,8 @@
           summarizeButton.textContent = 'Summarize';
           summarizeButton.classList.remove('btn--disabled');
         }
-        if (this.summaryContent) this.summaryContent.style.display = 'none';
-        if (this.quizContent) this.quizContent.style.display = 'none';
+        // Don't set inline display: none - let CSS and TabManager handle visibility
+        // Content will be shown when user switches to the appropriate tab
       } else {
         if (summarizeButton) {
           summarizeButton.disabled = true;
@@ -294,17 +308,14 @@
       this.quizContainer?.classList.remove('hidden');
       if (cachedQuiz) {
         if (this.quizContent) {
-          this.quizContent.style.display = 'block';
+          // Don't set inline display - let CSS and TabManager handle it
           this.quizContent.innerHTML = cachedQuiz;
-          this.quizContent.classList.add('collapsed');
+          // Don't add collapsed class - let TabManager handle visibility when tab is active
         }
         if (this.quizHeader) {
           this.quizHeader.querySelector('.collapse-button')?.classList.add('collapsed');
         }
-        if (window.contentGenerator) {
-          window.contentGenerator.initializeQuizNavigation();
-          window.contentGenerator.addSubmitButton();
-        }
+        // Quiz navigation and submit button are now handled by QuizUIController
         if (window.showCompletionBadge) {
           window.showCompletionBadge(this.quizContainer);
         }
@@ -314,10 +325,8 @@
         if (makeTestButton) makeTestButton.style.display = 'none';
         if (regenerateQuizButton) regenerateQuizButton.style.display = 'block';
       } else {
-        if (this.quizContent) {
-          this.quizContent.style.display = 'none';
-          this.quizContent.classList.add('collapsed');
-        }
+        // Don't set inline display: none - let CSS handle it
+        // Content will be shown when user switches to quiz tab
         if (this.quizHeader) {
           this.quizHeader.querySelector('.collapse-button')?.classList.add('collapsed');
         }

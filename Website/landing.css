@@ -174,6 +174,41 @@ h1, h2, h3, h4, h5, h6 {
 .btn--nav {
     padding: 10px 20px;
     font-size: 14px;
+    background: #22C55E;
+    color: white;
+    border-radius: 4px;
+    box-shadow: var(--shadow-md);
+    animation: wiggle 8s infinite;
+}
+
+.btn--nav:hover {
+    background: #16A34A;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+@keyframes wiggle {
+    0%, 98%, 100% {
+        transform: rotate(0deg);
+    }
+    97.5% {
+        transform: rotate(0deg);
+    }
+    97.6% {
+        transform: rotate(-3deg) translateX(-2px);
+    }
+    97.8% {
+        transform: rotate(3deg) translateX(2px);
+    }
+    98% {
+        transform: rotate(-2deg) translateX(-1px);
+    }
+    98.2% {
+        transform: rotate(2deg) translateX(1px);
+    }
+    98.4% {
+        transform: rotate(0deg);
+    }
 }
 
 /* Hero Section */

@@ -1,0 +1,83 @@
+/* Section Info Dialogs */
+.section-info-dialog {
+  background: rgba(0, 0, 0, 0.85);
+  border: none;
+  padding: 0;
+  margin: auto;
+  max-width: 90vw;
+  max-height: 90vh;
+  width: 600px;
+}
+
+.section-info-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+}
+
+.section-info-dialog .modal__content {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 0;
+  max-width: 100%;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.section-info-dialog .modal__header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.section-info-dialog .modal__header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.section-info-dialog .modal__body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.section-info-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin: 0 0 24px 0;
+}
+
+.section-info-cta {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.section-info-cta .btn {
+  width: 100%;
+  padding: 12px 24px;
+}
+
+[data-theme="dark"] .section-info-dialog .modal__content {
+  background: #3d3d3d;
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .section-info-dialog .modal__header {
+  background: #3d3d3d;
+  color: var(--text-primary);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .section-info-dialog .modal__body {
+  background: #3d3d3d;
+  color: var(--text-primary);
+}
