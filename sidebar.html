@@ -110,13 +110,16 @@
                   <span class="screenshot-preview-text">Screenshot will be sent with your message</span>
                 </div>
               </div>
+              <div class="file-upload-status-container">
+                <span id="file-upload-status" class="file-upload-status" style="display: none;"></span>
+              </div>
               <div class="chat-input-container">
                 <div class="chat-input-buttons">
                   <button id="upload-file-button" class="chat-icon-button" type="button" aria-label="Upload file">
                     📎
                     <span class="tooltip">Upload file</span>
                   </button>
-                  <input type="file" id="file-upload-input" accept="*" style="display: none;">
+                  <input type="file" id="file-upload-input" accept="image/*,.pdf,.doc,.docx" style="display: none;">
                   <button id="screenshot-button" class="chat-icon-button" type="button" aria-label="Take screenshot">
                     ✂️
                     <span class="tooltip">Capture area</span>
@@ -129,9 +132,6 @@
                     <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                   </svg>
                 </button>
-              </div>
-              <div class="file-upload-status-container">
-                <span id="file-upload-status" class="file-upload-status" style="display: none;"></span>
               </div>
             </div>
           </section>

@@ -554,6 +554,11 @@
         return;
       }
 
+      // Check for uploaded file context first (before handling screenshot)
+      const uploadedFileContext = await chrome.storage.local.get(['uploadedFileContext']);
+      const fileContext = uploadedFileContext.uploadedFileContext;
+      const hasUploadedFile = fileContext && (fileContext.filename || fileContext.imageData || fileContext.text);
+      
       // Handle pending screenshot
       let screenshotToSend = null;
       if (this.pendingScreenshot) {
@@ -568,12 +573,15 @@
         });
         this.hideScreenshotPreview();
       }
-
+      
       // Add user's question to chat
       if (question) {
         this.addMessage(question, true);
       } else if (screenshotToSend) {
         this.addMessage('Screenshot:', true);
+      } else if (hasUploadedFile) {
+        const fileName = fileContext.filename || 'Uploaded file';
+        this.addMessage(`File: ${fileName}`, true);
       }
       
       // Add screenshot image to the last user message if present
@@ -582,7 +590,17 @@
         if (lastMessage) {
           const img = document.createElement('img');
           img.src = screenshotToSend;
-          img.style.cssText = 'max-width: 100% !important; max-height: 250px !important; width: auto !important; height: auto !important; object-fit: contain !important; border-radius: 8px; margin-top: 8px; display: block;';
+          img.className = 'chat-message-image';
+          lastMessage.appendChild(img);
+        }
+      }
+      
+      // Add uploaded file image to the last user message if present (for image files)
+      if (hasUploadedFile && fileContext.imageData && this.container) {
+        const lastMessage = this.container.querySelector('.chat-message.user:last-child');
+        if (lastMessage) {
+          const img = document.createElement('img');
+          img.src = fileContext.imageData;
           img.className = 'chat-message-image';
           lastMessage.appendChild(img);
         }
@@ -626,15 +644,22 @@
           });
         }
         
-        // Include screenshot in message if present
+        // Include screenshot or file in message if present
         let messageToSend = question || '';
         if (screenshotToSend) {
           messageToSend = question || 'Please analyze this screenshot.';
+        } else if (hasUploadedFile) {
+          const fileName = fileContext.filename || 'uploaded file';
+          if (fileContext.fileType?.startsWith('image/')) {
+            messageToSend = question || `Please analyze this image: ${fileName}`;
+          } else if (fileContext.fileType === 'application/pdf') {
+            messageToSend = question || `Please analyze this PDF: ${fileName}`;
+          } else {
+            messageToSend = question || `Please analyze this document: ${fileName}`;
+          }
         }
         
-        // Check if we need vision model (screenshot or uploaded file context)
-        const uploadedFileContext = await chrome.storage.local.get(['uploadedFileContext']);
-        const fileContext = uploadedFileContext.uploadedFileContext;
+        // Check if we need vision model (screenshot or uploaded image file)
         const hasImageOrFile = screenshotToSend || 
                               (fileContext && 
                                (fileContext.imageData || 
@@ -664,6 +689,18 @@
           useVisionModel: !!hasImageOrFile, // Request vision model if image/file is present
           imageData: imageDataToSend // Send compressed image data (full data URL format)
         });
+
+        // Clear uploaded file context after sending (so it doesn't persist)
+        if (hasUploadedFile) {
+          await chrome.storage.local.remove('uploadedFileContext');
+          // Hide file upload status
+          const fileUploadStatus = document.getElementById('file-upload-status');
+          if (fileUploadStatus) {
+            fileUploadStatus.style.display = 'none';
+            fileUploadStatus.textContent = '';
+            fileUploadStatus.classList.remove('loaded');
+          }
+        }
 
         if (response?.error) {
           this.addMessage(`Error: ${response.error}`, false);

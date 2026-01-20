@@ -1316,6 +1316,40 @@ input:checked + .slider:before {
   width: auto !important;
   height: auto !important;
   object-fit: contain !important;
+  display: block !important;
+  margin: 8px 0 0 0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Ensure chat messages with images don't overflow horizontally */
+.chat-message.user,
+.chat-message.assistant {
+  box-sizing: border-box !important;
+  /* Don't use overflow: hidden on messages - let them expand vertically */
+  /* Only constrain images, not the entire message */
+}
+
+.chat-message.user img,
+.chat-message.assistant img,
+.chat-message img.chat-message-image {
+  max-width: calc(100% - 16px) !important; /* Account for padding (8px on each side) */
+  max-height: 250px !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin: 8px auto 0 auto !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure chat message content doesn't overflow */
+.chat-message.user > *,
+.chat-message.assistant > * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .quiz-result.okay {
@@ -1436,7 +1470,7 @@ input:checked + .slider:before {
 .chat-container {
   display: flex !important;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px; /* Reduced gap to give more room to messages */
   height: 100%;
   flex: 1;
   min-height: 0;
@@ -1444,26 +1478,35 @@ input:checked + .slider:before {
   animation: chat-pulse 2s ease-in-out infinite;
   border-radius: 8px;
   border: 1px solid transparent;
-  overflow: visible;
+  overflow: hidden; /* Prevent container overflow */
+  box-sizing: border-box !important;
 }
 
 .chat-messages {
   display: flex !important;
   flex-direction: column;
   gap: 12px;
-  flex: 1;
-  overflow-y: auto;
+  flex: 1 1 auto !important; /* Allow growth and shrinking */
+  overflow-y: auto !important; /* Enable vertical scrolling */
+  overflow-x: hidden !important; /* Prevent horizontal overflow */
   background: var(--bg-secondary);
   padding: 12px;
   border-radius: 8px;
-  min-height: 0; /* Let flex handle sizing */
-  max-height: none;
+  min-height: 0 !important; /* Critical for flex scrolling */
+  max-height: 100% !important; /* Constrain to parent */
   visibility: visible !important;
   opacity: 1 !important;
+  box-sizing: border-box !important;
+  /* Ensure scrolling works */
+  -webkit-overflow-scrolling: touch;
+  /* Force scrollbar to appear when needed */
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-color) transparent;
 }
 
 .chat-message {
   display: flex;
+  flex-direction: column; /* Stack content vertically */
   gap: 8px;
   padding: 8px;
   border-radius: 8px;
@@ -1471,6 +1514,10 @@ input:checked + .slider:before {
   border: 1px solid var(--border-color);
   font-size: 15px; /* Increased by 20% from default ~12.5px */
   line-height: 1.5;
+  box-sizing: border-box !important;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  min-height: fit-content; /* Allow messages to expand to show all content */
 }
 
 .chat-message.user {
@@ -1478,6 +1525,9 @@ input:checked + .slider:before {
   background: var(--accent-gradient);
   color: white;
   border: none;
+  max-width: 85%; /* Limit user message width to prevent overflow */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .chat-message.assistant {
@@ -2799,24 +2849,35 @@ dialog[open] > * {
 }
 
 .file-upload-status-container {
-  margin-top: 8px;
-  margin-bottom: 0;
-  padding: 0;
+  margin-top: 0;
+  margin-bottom: 8px;
+  padding: 0 8px; /* Match chat container padding */
   min-height: 0;
   height: auto;
+  flex-shrink: 0; /* Don't shrink - always show */
+  order: -1; /* Show above chat messages */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .file-upload-status {
   font-size: 12px;
   color: var(--text-secondary);
-  padding: 4px 8px;
+  padding: 8px 12px;
   background: var(--bg-secondary);
-  border-radius: 4px;
-  display: inline-block;
+  border-radius: 6px;
+  display: block;
+  border: 1px solid var(--border-color);
+  word-break: break-word;
+  max-width: 100%;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .file-upload-status.loaded {
   color: #10b981;
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
 }
 
 /* Chat Suggestions */

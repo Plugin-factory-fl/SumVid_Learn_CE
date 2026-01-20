@@ -1019,6 +1019,15 @@ router.post('/process-file', async (req, res) => {
           });
         }
         
+        // Handle document files (.doc, .docx) - return error for now as we don't have a parser
+        // In the future, could use mammoth for .docx or similar library
+        if (fileType === 'application/msword' || 
+            fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+          return res.status(400).json({ 
+            error: `Document files (.doc, .docx) are not yet supported. Please convert to PDF or extract text manually.` 
+          });
+        }
+        
         // For other file types, return error
         return res.status(400).json({ 
           error: `Unsupported file type: ${fileType}. Supported types: PDF, images (PNG, JPEG, etc.)` 

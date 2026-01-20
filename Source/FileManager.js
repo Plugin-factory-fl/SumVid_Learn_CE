@@ -314,10 +314,19 @@
         // Add uploaded file context
         if (uploadedFile) {
           if (uploadedFile.text) {
+            // For PDFs and documents, include the extracted text
             const truncated = uploadedFile.text.substring(0, 8000);
-            contextParts.push(`Uploaded File (${uploadedFile.filename}): ${truncated}`);
+            const fileTypeLabel = uploadedFile.fileType === 'application/pdf' ? 'PDF' : 
+                                 uploadedFile.fileType?.includes('document') ? 'Document' : 'File';
+            contextParts.push(`Uploaded ${fileTypeLabel} (${uploadedFile.filename}): ${truncated}`);
+            if (uploadedFile.text.length > 8000) {
+              contextParts[contextParts.length - 1] += `\n[Note: File content truncated. Original was ${Math.ceil(uploadedFile.text.length / 1000)}k characters.]`;
+            }
           } else if (uploadedFile.imageData) {
             contextParts.push(`Uploaded Image: ${uploadedFile.filename} (image data available)`);
+          } else if (uploadedFile.filename) {
+            // File uploaded but no text/image data yet
+            contextParts.push(`Uploaded File: ${uploadedFile.filename} (processing...)`);
           }
         }
         
