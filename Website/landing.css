@@ -463,7 +463,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .how-it-works__img {
     max-width: 100%;
-    width: 600px;
+    width: 300px;
     height: auto;
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-md);
