@@ -445,10 +445,11 @@ Rules:
 /**
  * POST /api/chat
  * Simple ChatGPT chat (no context from video/webpage)
+ * Supports vision model for image analysis
  */
 router.post('/chat', async (req, res) => {
   try {
-    const { message, chatHistory, context } = req.body;
+    const { message, chatHistory, context, useVisionModel, imageData, image, images } = req.body;
     const userId = req.user.userId;
 
     if (!message) {
@@ -483,6 +484,12 @@ router.post('/chat', async (req, res) => {
         usage: incrementResult.usage
       });
     }
+
+    // Check if vision model is needed (image present)
+    const hasImage = useVisionModel && (imageData || image || (Array.isArray(images) && images.length > 0));
+    const imageToUse = imageData || image || (Array.isArray(images) && images[0]);
+    
+    console.log(`[API Chat] Vision request: useVisionModel=${useVisionModel}, hasImage=${hasImage}, imageDataLength=${imageToUse?.length || 0}`);
 
     // Build system message with context if provided
     // Truncate context aggressively to avoid token limits
@@ -524,27 +531,90 @@ router.post('/chat', async (req, res) => {
       });
     }
 
-    // Add current message
-    messages.push({ role: 'user', content: message });
+    // Add current message with image if present
+    if (hasImage && imageToUse) {
+      // Use vision-capable model (gpt-4-turbo or gpt-4o)
+      // Format message with image for OpenAI vision API
+      const userMessage = {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: message
+          },
+          {
+            type: 'image_url',
+            image_url: {
+              url: imageToUse // OpenAI accepts data URLs directly
+            }
+          }
+        ]
+      };
+      messages.push(userMessage);
 
-    // Generate reply
-    const reply = await callOpenAI(messages, 500, 0.7);
+      // Use vision model
+      console.log(`[API Chat] Using vision model (gpt-4o) for image analysis`);
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o', // Use gpt-4o for vision (better and cheaper than gpt-4-turbo)
+          messages: messages,
+          max_tokens: 500,
+          temperature: 0.7
+        })
+      });
 
-    // Get updated usage
-    const updatedUsageResult = await query(
-      'SELECT enhancements_used, enhancements_limit FROM users WHERE id = $1',
-      [userId]
-    );
-    const updatedUsage = updatedUsageResult.rows[0];
-
-    res.json({
-      reply,
-      usage: {
-        enhancementsUsed: updatedUsage.enhancements_used,
-        enhancementsLimit: updatedUsage.enhancements_limit,
-        remaining: Math.max(0, updatedUsage.enhancements_limit - updatedUsage.enhancements_used)
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`OpenAI API error: ${errorText}`);
       }
-    });
+
+      const data = await response.json();
+      const reply = data.choices[0].message.content;
+
+      // Get updated usage
+      const updatedUsageResult = await query(
+        'SELECT enhancements_used, enhancements_limit FROM users WHERE id = $1',
+        [userId]
+      );
+      const updatedUsage = updatedUsageResult.rows[0];
+
+      return res.json({
+        reply,
+        usage: {
+          enhancementsUsed: updatedUsage.enhancements_used,
+          enhancementsLimit: updatedUsage.enhancements_limit,
+          remaining: Math.max(0, updatedUsage.enhancements_limit - updatedUsage.enhancements_used)
+        }
+      });
+    } else {
+      // No image - use regular text model
+      // Add current message
+      messages.push({ role: 'user', content: message });
+
+      // Generate reply
+      const reply = await callOpenAI(messages, 500, 0.7);
+
+      // Get updated usage
+      const updatedUsageResult = await query(
+        'SELECT enhancements_used, enhancements_limit FROM users WHERE id = $1',
+        [userId]
+      );
+      const updatedUsage = updatedUsageResult.rows[0];
+
+      res.json({
+        reply,
+        usage: {
+          enhancementsUsed: updatedUsage.enhancements_used,
+          enhancementsLimit: updatedUsage.enhancements_limit,
+          remaining: Math.max(0, updatedUsage.enhancements_limit - updatedUsage.enhancements_used)
+        }
+      });
+    }
   } catch (error) {
     console.error('Chat error:', error);
     res.status(500).json({ error: error.message || 'Failed to generate reply' });
